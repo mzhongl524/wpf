@@ -19,7 +19,6 @@ using System.Diagnostics;               // for Assert
 using MS.Internal.IO.Packaging;         // for PackageCache
 using MS.Internal.PresentationCore;     // for ExceptionStringTable
 using System.Security;
-using System.Security.Permissions;
 using MS.Internal;
 
 namespace System.IO.Packaging
@@ -29,12 +28,6 @@ namespace System.IO.Packaging
     /// </summary>
     public sealed class PackWebRequestFactory : IWebRequestCreate
     {
-        /// <SecurityNote>
-        /// Critical as the BooleanSwitch has a LinkDemand
-        /// TreatAsSafe as this is just a diag switch, Debug-only, no input data is used,
-        ///   and the usage is considered safe (tracing).
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         static PackWebRequestFactory()
         {
 #if DEBUG
@@ -56,12 +49,6 @@ namespace System.IO.Packaging
         /// for "pack" scheme web requests.  Because of this, callers should be sure to use the PackUriHelper static class
         /// to prepare their Uri's.  Calling any PackUriHelper method has the side effect of registering
         /// the "pack" scheme and associating this factory class as its default handler.</remarks>
-        /// <SecurityNote>
-        /// Critical: Access a package instance from PreloadedPackages.
-        /// TreatAsSafe: because it is a public method and no Package related objects
-        ///         are given out from this API other than a part stream
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         WebRequest IWebRequestCreate.Create(Uri uri)
         {
             if (uri == null)
@@ -86,9 +73,8 @@ namespace System.IO.Packaging
 #endif
             // only inspect cache if part name is present because cache only contains an object, not
             // the stream it was derived from
-            Uri packageUri;
-            Uri partUri;
-            MS.Internal.IO.Packaging.PackUriHelper.ValidateAndGetPackUriComponents(uri, out packageUri, out partUri);
+            Uri packageUri = System.IO.Packaging.PackUriHelper.GetPackageUri(uri);
+            Uri partUri = System.IO.Packaging.PackUriHelper.GetPartUri(uri);
 
             if (partUri != null)
             {
@@ -165,10 +151,6 @@ namespace System.IO.Packaging
         }
 
 #if DEBUG
-        ///<SecurityNote>
-        ///     Critical: sets BooleanSwitch.Enabled which LinkDemands
-        ///     TreatAsSafe: ok to enable tracing, and it's in debug only
-        ///</SecurityNote> 
         internal static bool TraceSwitchEnabled
         {
             get
@@ -176,7 +158,6 @@ namespace System.IO.Packaging
                 return _traceSwitch.Enabled;
             }
 
-            [SecurityCritical, SecurityTreatAsSafe]
             set
             {
                 _traceSwitch.Enabled = value;

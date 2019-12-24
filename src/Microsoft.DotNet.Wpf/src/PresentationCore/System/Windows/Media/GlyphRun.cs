@@ -38,7 +38,6 @@ using MS.Internal.TextFormatting;
 using MS.Internal.Text.TextInterface;
 using MS.Utility;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Interop;
 using SR=MS.Internal.PresentationCore.SR;
 using SRID=MS.Internal.PresentationCore.SRID;
@@ -1883,12 +1882,6 @@ namespace System.Windows.Media
         /// <summary>
         /// Send to channel command sequence to create slave resource.
         /// </summary>
-        /// <SecurityNote>
-        ///   Critical: This code acceses an unsafe code block
-        ///   TreatAsSafe: This does not expose any data and the unsafe code blocks
-        ///    needs to be verified for correctness
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         private void CreateOnChannel(DUCE.Channel channel)
         {
             Debug.Assert(_glyphTypeface != null);

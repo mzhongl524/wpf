@@ -7,7 +7,6 @@
 
 using System;
 using System.Security;
-using System.Security.Permissions;
 using System.Diagnostics;
 using MS.Internal;
 using MS.Win32;
@@ -26,10 +25,6 @@ namespace System.Windows.Media
     internal class FactoryMaker: IDisposable
     {
         private bool _disposed = false;
-        /// <SecurityNote>
-        /// Critical - Create unmanaged critical resource 
-        /// </SecurityNote>
-        [SecurityCritical]
         internal FactoryMaker()
         {
             lock (s_factoryMakerLock)
@@ -64,12 +59,6 @@ namespace System.Windows.Media
                 Dispose(true);
         }
 
-        ///<SecurityNote>
-        ///     Critical - performs an elevation to call MILUnknown.ReleaseInterface. 
-        ///     TreatAsSafe - this function elevates to call release ( on an object we own). 
-        ///                          net effect is a shutdown of the FactoryMaker. Considered safe. 
-        ///</SecurityNote> 
-        [SecurityCritical, SecurityTreatAsSafe]
         protected virtual void Dispose(bool fDisposing)
         {
                 if (!_disposed)
@@ -113,12 +102,8 @@ namespace System.Windows.Media
                 }
         }
 
-        /// <SecurityNote>
-        /// Critical - returns critical resource created under an assert
-        /// </SecurityNote>
         internal IntPtr FactoryPtr
         {
-            [SecurityCritical]
             get
             {
                 Debug.Assert(s_pFactory != IntPtr.Zero);
@@ -126,12 +111,8 @@ namespace System.Windows.Media
             }
         }
 
-        /// <SecurityNote>
-        /// Critical - calls unmanaged code, returns unmanaged pointer
-        /// </SecurityNote>
         internal IntPtr ImagingFactoryPtr
         {
-            [SecurityCritical]
             get
             {
                 if (s_pImagingFactory == IntPtr.Zero)
@@ -146,15 +127,7 @@ namespace System.Windows.Media
             }
         }
 
-        /// <SecurityNote>
-        /// Critical - this is a pointer to an unmanaged object that methods are called directly on
-        /// </SecurityNote>
-        [SecurityCritical]
         private static IntPtr s_pFactory;
-        /// <SecurityNote>
-        /// Critical - this is a pointer to an unmanaged object that methods are called directly on
-        /// </SecurityNote>
-        [SecurityCritical]
         private static IntPtr s_pImagingFactory;
 
         /// <summary>

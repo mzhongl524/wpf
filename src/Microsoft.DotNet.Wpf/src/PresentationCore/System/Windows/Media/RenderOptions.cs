@@ -14,7 +14,6 @@ using MS.Win32.PresentationCore;
 using System;
 using System.Diagnostics;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Interop;
 
 namespace System.Windows.Media
@@ -234,23 +233,14 @@ namespace System.Windows.Media
         ///     <para/>
         ///     Callers must have UIPermission(UIPermissionWindow.AllWindows) to set this property.
         /// </remarks>
-        /// <SecurityNote>
-        ///     Critical: This code influences the low-level rendering code by specifying whether the
-        ///     rendering system should use the GPU or CPU.
-        ///     PublicOK: We don't want to enable this in partial trust, so we have a link demand
-        ///     on the setter.  It is not privileged data, so the getter is not protected.
-        /// </SecurityNote>
         public static RenderMode ProcessRenderMode
         {
-            [SecurityCritical]
             get
             {
                 return UnsafeNativeMethods.MilCoreApi.RenderOptions_IsSoftwareRenderingForcedForProcess() ?
                     RenderMode.SoftwareOnly : RenderMode.Default;
             }
 
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand, Window = UIPermissionWindow.AllWindows)]
             set
             {
                 if (value != RenderMode.Default && value != RenderMode.SoftwareOnly)

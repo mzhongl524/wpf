@@ -19,7 +19,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Security;
-using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Windows;
@@ -67,11 +66,6 @@ namespace System.Windows.Media
         #endregion
 
         #region AddToFigure
-        /// <SecurityNote>
-        ///     Critical: This code calls into MilUtility_ArcToBezier which has an unmanaged code elevation
-        ///     TreatAsSafe: Adding a figure is considered safe in partial trust.
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         internal override void AddToFigure(
             Matrix matrix,          // The transformation matrid
             PathFigure figure,      // The figure to add to

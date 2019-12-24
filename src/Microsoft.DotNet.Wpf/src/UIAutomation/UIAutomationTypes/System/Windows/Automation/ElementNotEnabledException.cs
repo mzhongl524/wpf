@@ -9,7 +9,6 @@ using System.Windows.Automation;
 using System;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 using MS.Internal.Automation;
 
 namespace System.Windows.Automation
@@ -56,7 +55,6 @@ namespace System.Windows.Automation
         /// <internalonly>
         /// Constructor for serialization
         /// </internalonly>
-        //CASRemoval:[SecurityPermissionAttribute(SecurityAction.Demand,SerializationFormatter=true)]
         protected ElementNotEnabledException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             HResult = UiaCoreTypesApi.UIA_E_ELEMENTNOTENABLED;
@@ -67,11 +65,6 @@ namespace System.Windows.Automation
         /// </summary>
         /// <param name="info">The SerializationInfo to populate with data.</param>
         /// <param name="context">The destination for this serialization.</param>
-        /// <SecurityNote>
-        ///     Critical : Base method is critical
-        /// <SecurityNote>
-        [SecurityCritical]
-        [SecurityPermissionAttribute(SecurityAction.Demand,SerializationFormatter=true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

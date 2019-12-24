@@ -16,7 +16,6 @@ using System.Reflection;
 using MS.Internal;
 using MS.Win32.PresentationCore;
 using System.Security;
-using System.Security.Permissions;
 using System.Diagnostics;
 using System.Windows.Media;
 using System.Globalization;
@@ -43,11 +42,6 @@ namespace System.Windows.Media.Imaging
         /// <param name="dpiX">Horizontal DPI of the Bitmap</param>
         /// <param name="dpiY">Vertical DPI of the Bitmap</param>
         /// <param name="pixelFormat">Format of the Bitmap.</param>
-        /// <SecurityNote>
-        /// Critical - access critical resources
-        /// PublicOK - All inputs verified
-        /// </SecurityNote>
-        [SecurityCritical]
         public RenderTargetBitmap(
             int pixelWidth,
             int pixelHeight,
@@ -119,11 +113,6 @@ namespace System.Windows.Media.Imaging
         /// Common Copy method used to implement CloneCore(), CloneCurrentValueCore(),
         /// GetAsFrozenCore(), and GetCurrentValueAsFrozenCore()
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - access unmanaged resource
-        /// TreatAsSafe - making a clone which is safe
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private void CopyCommon(RenderTargetBitmap sourceBitmap)
         {
             _bitmapInit.BeginInit();
@@ -226,11 +215,6 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Clears the render target and sets every pixel to black transparent
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - access unmanaged resource
-        /// PublicOk - Clear is safe (no inputs)
-        /// </SecurityNote>
-        [SecurityCritical]
         public void Clear()
         {
             HRESULT.Check(MILRenderTargetBitmap.Clear(_renderTargetBitmap));
@@ -240,12 +224,8 @@ namespace System.Windows.Media.Imaging
         ///
         /// Get the MIL RenderTarget
         ///
-        /// <SecurityNote>
-        /// Critical - returns unmanaged resource
-        /// </SecurityNote>
         internal SafeMILHandle MILRenderTarget
         {
-            [SecurityCritical]
             get
             {
                 return _renderTargetBitmap;
@@ -255,11 +235,6 @@ namespace System.Windows.Media.Imaging
         ///
         /// Notify that the contents of the render target have changed
         ///
-        /// <SecurityNote>
-        /// Critical - access critical resource _convertedDUCEPtr
-        /// TreatAsSafe - Critical data is used internally and not exposed
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal void RenderTargetContentsChanged()
         {
             // If the render target has changed, we need to update the UCE resource.  We ensure
@@ -281,10 +256,6 @@ namespace System.Windows.Media.Imaging
         ///
         /// Create the unmanaged resources
         ///
-        /// <SecurityNote>
-        /// Critical - creates critical resource
-        /// </SecurityNote>
-        [SecurityCritical]
         internal override void FinalizeCreation()
         {
             try
@@ -333,10 +304,6 @@ namespace System.Windows.Media.Imaging
             }
 }
 
-        /// <SecurityNote>
-        /// Critical - unmanaged resource - not safe for handing out
-        /// </SecurityNote>
-        [SecurityCritical]
         private SafeMILHandle /* IMILRenderTargetBitmap */ _renderTargetBitmap;
 }
     #endregion // RenderTargetBitmap

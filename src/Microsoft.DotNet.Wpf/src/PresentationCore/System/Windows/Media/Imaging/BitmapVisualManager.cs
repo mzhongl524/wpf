@@ -15,7 +15,6 @@ using System.Runtime.InteropServices;
 using System.IO;
 using MS.Internal;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Media;
 using System.Windows.Media.Composition;
 using SR=MS.Internal.PresentationCore.SR;
@@ -75,11 +74,6 @@ namespace System.Windows.Media.Imaging
         /// <param name="fRenderForBitmapEffect">True if we are rendering the visual
         /// to apply an effect to it</param>
         /// 
-        /// <SecurityNote>
-        /// Critical - Deals with bitmap handles
-        /// TreatAsSafe - validates all parameters, uses safe wrappers
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         internal void Render(Visual visual, Matrix worldTransform, Rect windowClip)
         {
             if (visual == null)

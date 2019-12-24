@@ -16,7 +16,6 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Security;
-using System.Security.Permissions;
 
 namespace System.Windows.Controls
 {
@@ -712,13 +711,6 @@ namespace System.Windows.Controls
         /// <summary>
         /// Raised when source is changed
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: This code calls into PresentationSource.CriticalFromVisual to
-        ///     extract presentationsource.
-        ///     TreatAsSafe: The value is not exposed and the call simply checks to see
-        ///     if the value is null
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         internal static void OnSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (e.IsASubPropertyChange)

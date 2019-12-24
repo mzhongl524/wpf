@@ -325,25 +325,27 @@ namespace System.Windows.Xps.Packaging
 
                 foreach( PackagePart part in xmlPartList )
                 {
-                    Stream stream = part.GetStream(FileMode.Open, FileAccess.Read );
-                    //
-                    // An empty stream contains not version extensibility thus is valid
-                    // We do create empty parts for print tickets
-                    //
-                    if( stream.Length == 0 )
-                        continue;
-                    try
+                    using (Stream stream = part.GetStream(FileMode.Open, FileAccess.Read))
                     {
-                        if( StreamContainsVersionExtensiblity(stream) )
+                        //
+                        // An empty stream contains not version extensibility thus is valid
+                        // We do create empty parts for print tickets
+                        //
+                        if (stream.Length == 0)
+                            continue;
+                        try
+                        {
+                            if (StreamContainsVersionExtensiblity(stream))
+                            {
+                                isSignable = false;
+                                break;
+                            }
+                        }
+                        catch (XmlException)
                         {
                             isSignable = false;
                             break;
                         }
-                    }
-                    catch( XmlException )
-                    {
-                        isSignable = false;
-                        break;
                     }
                 }
                 return isSignable;
@@ -892,9 +894,13 @@ namespace System.Windows.Xps.Packaging
             Stream     dataStream
             )
         {
+            // In .NET Core 3.0 System.IO.Compression's ZipArchive does not allow creation of ZipArchiveEntries when
+            // a prior ZipArchiveEntry is still open.  XPS Serialization requires this as part of its implementation.
+            // To get around this, XPS creation should occur in with FileAccess.ReadWrite if the underlying stream
+            // supports it.  This allows multiple ZipArchiveEntries to be open concurrently.
             Package package = Package.Open(dataStream,
                                            FileMode.CreateNew,
-                                           FileAccess.Write);
+                                           (dataStream.CanRead) ? FileAccess.ReadWrite : FileAccess.Write);
             XpsDocument document = new XpsDocument(package);
 
             document.OpcPackage = package;
@@ -927,11 +933,6 @@ namespace System.Windows.Xps.Packaging
         /// This is a pass thru to allow system printing access to method of the
         /// same name in WindowsBase
         /// </summary>
-        /// <SecurityNote>
-        /// Critical:
-        ///  1) Calls critical method AttachmentService::SaveWithUI
-        /// </SecurityNote>
-        [SecurityCritical]
         internal static void SaveWithUI(IntPtr parent, Uri source, Uri target)
         {
             AttachmentService.SaveWithUI(parent, source, target );

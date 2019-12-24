@@ -19,8 +19,6 @@ using System.Reflection;
 
 using MS.Utility;
 using System.Security;
-using System.Security.Permissions;
-using System.Security.Policy;
 using System.Text;
 using System.ComponentModel.Design.Serialization;
 using System.Globalization;
@@ -81,7 +79,7 @@ namespace System.Windows.Markup
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
 
             return Load(stream, null);
@@ -97,7 +95,7 @@ namespace System.Windows.Markup
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             return Load(reader, null, XamlParseMode.Synchronous);
@@ -114,7 +112,7 @@ namespace System.Windows.Markup
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (parserContext == null)
             {
@@ -136,9 +134,9 @@ namespace System.Windows.Markup
         /// </remarks>
         public object LoadAsync(Stream stream)
         {
-            if (null == stream)
+            if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             _stream = stream;
 
@@ -163,9 +161,9 @@ namespace System.Windows.Markup
         /// </remarks>
         public object LoadAsync(XmlReader reader)
         {
-            if (null == reader)
+            if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             return LoadAsync(reader, null);
@@ -184,9 +182,9 @@ namespace System.Windows.Markup
         /// </remarks>
         public object LoadAsync(Stream stream, ParserContext parserContext)
         {
-            if (null == stream)
+            if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             _stream = stream;
 
@@ -222,7 +220,7 @@ namespace System.Windows.Markup
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             if (parserContext == null)
@@ -684,7 +682,7 @@ namespace System.Windows.Markup
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (parserContext == null)
             {
@@ -707,7 +705,7 @@ namespace System.Windows.Markup
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             return Load(reader, null, XamlParseMode.Synchronous, useRestrictiveXamlReader);
@@ -881,7 +879,7 @@ namespace System.Windows.Markup
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
             object root = null;
             try
@@ -927,14 +925,6 @@ namespace System.Windows.Markup
         /// <param name="closeStream">True if stream should be closed by the
         ///    parser after parsing is complete.  False if the stream should be left open</param>
         /// <returns>object root generated after baml parsed</returns>
-        /// <SecurityNote>
-        ///     Critical - because it asserts XamlLoadPermission, which is demanded by ObjectWriter to
-        ///                allow legitimate internal types in Partial Trust.
-        ///     Safe - because it gets this value from the stream if it implements an internal IStreamInfo
-        ///            interface and IStreamInfo.Assembly is set by the ResourceContainer code that is
-        ///            SecurityCritical, but treated as safe.
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal static object LoadBaml(
             Stream stream,
             ParserContext parserContext,
@@ -1011,16 +1001,7 @@ namespace System.Windows.Markup
                 if (internalTypeHelper != null)
                 {
                     XamlAccessLevel accessLevel = XamlAccessLevel.AssemblyAccessTo(streamInfo.Assembly);
-                    XamlLoadPermission loadPermission = new XamlLoadPermission(accessLevel);
-                    loadPermission.Assert();
-                    try
-                    {
-                        root = WpfXamlLoader.LoadBaml(reader, parserContext.SkipJournaledProperties, parent, accessLevel, parserContext.BaseUri);
-                    }
-                    finally
-                    {
-                        CodeAccessPermission.RevertAssert();
-                    }
+                    root = WpfXamlLoader.LoadBaml(reader, parserContext.SkipJournaledProperties, parent, accessLevel, parserContext.BaseUri);
                 }
                 else
                 {

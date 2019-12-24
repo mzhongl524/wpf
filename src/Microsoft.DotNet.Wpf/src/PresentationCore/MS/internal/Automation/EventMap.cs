@@ -14,7 +14,6 @@
 using System;
 using System.Collections;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Automation.Peers;
@@ -264,11 +263,6 @@ namespace MS.Internal.Automation
         //
         // The following methods implement (b).   See <see cref="HwndSource.RootVisual"/> for (a).
 
-        /// <SecurityNote>
-        ///    Critical: Calls critical member PresentationSource.CriticalCurrentSources
-        ///    Safe: Does not expose anything to the user
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         private static void NotifySources()
         {
             foreach (PresentationSource source in PresentationSource.CriticalCurrentSources)
@@ -282,32 +276,15 @@ namespace MS.Internal.Automation
             }
         }
 
-        /// <SecurityNote>
-        ///    Critical: Calls critical member PresentationSource.RootVisual
-        ///    Safe: Does not expose anything to the user
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         private static object NotifySource(Object args)
         {
             object[] argsArray = (object[])args;
             PresentationSource source = argsArray[0] as PresentationSource;
             if (source != null && !source.IsDisposed)
             {
-                bool needAsserts = System.Security.SecurityManager.CurrentThreadRequiresSecurityContextCapture();
-                if (needAsserts)
-                {
-                    // permission required to set RootVisual
-                    new UIPermission(UIPermissionWindow.AllWindows).Assert();
-                }
-
                 // setting the RootVisual to itself triggers the logic to
                 // add to the AutomationEvents list
                 source.RootVisual = source.RootVisual;
-
-                if (needAsserts)
-                {
-                    UIPermission.RevertAssert();
-                }
             }
             return null;
         }

@@ -9,7 +9,6 @@ using System.Windows.Media;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using System.Security;
-using System.Security.Permissions;
 using MS.Internal;
 using MS.Internal.PresentationCore;                        // SecurityHelper
 using MS.Win32; // *NativeMethods
@@ -32,13 +31,6 @@ namespace System.Windows.Input
         /// </summary>
         /// <param name="inputManager">
         /// </param>
-        /// <SecurityNote>
-        /// Critical - This is code that elevates AND creates the mouse device which
-        ///             happens to hold the callback to filter mouse messages
-        /// TreatAsSafe: This constructor handles critical data but does not expose it
-        ///             It stores instance but there are demands on the instances.
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         internal Win32MouseDevice(InputManager inputManager)
             : base(inputManager)
         {
@@ -53,11 +45,6 @@ namespace System.Windows.Input
         /// <returns>
         ///     The state of the specified mouse button
         /// </returns>
-        /// <SecurityNote>
-        ///     Critical: Makes calls to UnsafeNativeMethods (GetKeyState)
-        ///     TreatAsSafe: Only returns the current state of the specified button
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         internal override MouseButtonState GetButtonStateFromSystem(MouseButton mouseButton)
         {
             MouseButtonState mouseButtonState = MouseButtonState.Released;

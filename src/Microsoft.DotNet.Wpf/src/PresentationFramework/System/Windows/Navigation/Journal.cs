@@ -28,7 +28,6 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Windows.Threading;
 using System.Security;
-using System.Security.Permissions;
 
 using MS.Internal;
 using MS.Internal.AppModel;
@@ -57,11 +56,6 @@ namespace System.Windows.Navigation
             _Initialize();
         }
 
-        /// <SecurityNote>
-        ///   Critical : Writes security sensitive data into SerializationInfo argument
-        /// </SecurityNote>
-        [SecurityCritical]
-        [SecurityPermissionAttribute(SecurityAction.LinkDemand, SerializationFormatter = true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("_journalEntryList", _journalEntryList);

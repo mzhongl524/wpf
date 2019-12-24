@@ -18,7 +18,6 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Security.Permissions;
 using System.Text;
 using System.Windows;
 using System.Windows.Automation;
@@ -419,7 +418,6 @@ namespace MS.Internal.Automation
             return result;
         }
 
-        [SecurityCritical]
         internal static int GetWindowLong(NativeMethods.HWND hWnd, int nIndex)
         {
             int iResult = 0;
@@ -495,7 +493,6 @@ namespace MS.Internal.Automation
             return result;
         }
 
-        [SecurityPermission(SecurityAction.Demand, UnmanagedCode=true)]
         internal static int TryMsgWaitForMultipleObjects(SafeWaitHandle handle, bool waitAll, int milliseconds, int wakeMask, ref int lastWin32Error)
         {
             int terminationEvent;

@@ -1,7 +1,6 @@
 <Project>
   <PropertyGroup Condition="'$(WpfTest)'=='true' Or '$(IsTestProject)'=='true'">
-    <RuntimeIdentifier Condition="('$(Platform)'!='AnyCPU' and '$(Platform)'!='Win32') Or $(Platform.EndsWith('64'))">win-$(Platform)</RuntimeIdentifier>
-    <RuntimeIdentifier Condition="'$(Platform)'=='AnyCPU' or '$(Platform)'=='Win32' or '$(Platform)'=='x86'">win-x86</RuntimeIdentifier>
+    <RuntimeIdentifier>$(WpfRuntimeIdentifier)</RuntimeIdentifier>
   </PropertyGroup>
   <!-- Arcade SDK defaults to AnyCpu ~= x64. In WPF, we will map AnyCpu => x86 instead -->
   <PropertyGroup Condition="'$(IsTestProject)' == 'true' or '$(WpfTest)'=='true'">
@@ -31,7 +30,6 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(SystemConfigurationConfigurationManagerPackageVersion)" CopyLocal="true"  />
     <PackageReference Include="System.Diagnostics.EventLog" Version="$(SystemDiagnosticsEventLogPackageVersion)" CopyLocal="true" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlPackageVersion)" CopyLocal="true" />
-    <PackageReference Include="System.Security.Permissions" Version="$(SystemSecurityPermissionsPackageVersion)" CopyLocal="true" />
     <PackageReference Include="System.Windows.Extensions" Version="$(SystemWindowsExtensionsPackageVersion)" CopyLocal="true" />
 
     <PackageReference Include="System.Security.AccessControl" Version="$(SystemSecurityAccessControlPackageVersion)" CopyLocal="true" />

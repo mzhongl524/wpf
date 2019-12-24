@@ -20,7 +20,6 @@ using System.Reflection;
 using System.Xml;
 using System.IO;
 using System.Security;
-using System.Security.Permissions;
 using System.ComponentModel.Design.Serialization;
 using System.Windows.Xps.Packaging;
 using System.Windows.Documents;
@@ -120,11 +119,6 @@ namespace System.Windows.Xps.Serialization
         /// <param name="serializablePropertyContext">
         /// The property from which this object was driven to serialization.
         /// </param>
-        /// <SecurityNote>
-        /// Critical -  Access the SerializationManager GraphContextStack which is a
-        /// ContextStack which is link critical
-        /// </SecurityNote>
-        [SecurityCritical]
         internal
         static
         SerializableObjectContext

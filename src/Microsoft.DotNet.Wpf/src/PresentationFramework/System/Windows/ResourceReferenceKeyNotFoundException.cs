@@ -12,7 +12,6 @@
 using System;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 
 namespace System.Windows
 {
@@ -63,12 +62,6 @@ namespace System.Windows
         /// <param name="context">
         /// The destination for this serialization.
         /// </param>
-        ///<SecurityNote>
-        ///     Critical: calls Exception.GetObjectData which LinkDemands
-        ///     PublicOK: a demand exists here
-        ///</SecurityNote>
-        [SecurityCritical]
-        [SecurityPermissionAttribute(SecurityAction.Demand,SerializationFormatter=true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

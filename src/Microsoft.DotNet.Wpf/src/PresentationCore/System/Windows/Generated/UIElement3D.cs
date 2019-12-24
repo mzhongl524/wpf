@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 
@@ -195,10 +194,6 @@ namespace System.Windows
         ///     <see cref="RoutedEventArgs"/> for the event to
         ///     be raised
         /// </param>
-        ///<SecurityNote>
-        ///     By default clears the user initiated bit.
-        ///     To guard against "replay" attacks.
-        ///</SecurityNote>
         public void RaiseEvent(RoutedEventArgs e)
         {
             // VerifyAccess();
@@ -216,10 +211,6 @@ namespace System.Windows
         ///     "Trusted" internal flavor of RaiseEvent.
         ///     Used to set the User-initated RaiseEvent.
         /// </summary>
-        ///<SecurityNote>
-        ///     Critical - sets the MarkAsUserInitiated bit.
-        ///</SecurityNote>
-        [SecurityCritical]
         internal void RaiseEvent(RoutedEventArgs args, bool trusted)
         {
             if (args == null)
@@ -239,11 +230,6 @@ namespace System.Windows
             }
         }
 
-        ///<SecurityNote>
-        ///     Critical - sets the MarkAsUserInitiated bit.
-        ///</SecurityNote>
-        [SecurityCritical]
-        [MS.Internal.Permissions.UserInitiatedRoutedEventPermissionAttribute(SecurityAction.Assert)]
         internal void RaiseTrustedEvent(RoutedEventArgs args)
         {
             if (args == null)

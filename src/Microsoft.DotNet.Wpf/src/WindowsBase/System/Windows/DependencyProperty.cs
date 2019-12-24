@@ -11,7 +11,6 @@ using System.Globalization;
 using System.ComponentModel;
 using System.Windows.Markup;// For ValueSerializerAttribute
 using System.Windows.Threading; // For DispatcherObject
-using System.Security.Permissions; // For LinkDemand
 using MS.Utility;
 using MS.Internal.WindowsBase;
 using System.Reflection;   // for IsInstanceOfType
@@ -677,7 +676,6 @@ namespace System.Windows
         /// Reteive metadata for a DependencyObject type described by the
         /// given DependencyObjectType
         /// </summary>
-        //CASRemoval:[StrongNameIdentityPermission(SecurityAction.LinkDemand, PublicKey = BuildInfo.WCP_PUBLIC_KEY_STRING)]
         public PropertyMetadata GetMetadata(DependencyObjectType dependencyObjectType)
         {
             // All static constructors for this DType and all base types have already

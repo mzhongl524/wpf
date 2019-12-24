@@ -13,7 +13,6 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Security;
-using System.Security.Permissions;
 using System.Text;
 
 using System.Globalization;
@@ -83,7 +82,7 @@ namespace Microsoft.Build.Tasks.Windows
         /// <returns></returns>
         public override bool Execute()
         {
-            TaskHelper.DisplayLogo(Log, SR.Get(SRID.MarkupCompilePass2Task));
+            TaskHelper.DisplayLogo(Log, nameof(MarkupCompilePass2));
 
             //
             // Create the TaskFileService instance here
@@ -373,7 +372,7 @@ namespace Microsoft.Build.Tasks.Windows
             get
             {
                if (_generatedBaml == null)
-                   _generatedBaml = new TaskItem[0];
+                   _generatedBaml = Array.Empty<TaskItem>();
                return _generatedBaml;
             }
 
@@ -570,7 +569,7 @@ namespace Microsoft.Build.Tasks.Windows
             Log.LogMessageFromResources(MessageImportance.Low, SRID.OutputType, OutputType);
 
             // Initialize the output parameters
-            localXamlPageFileList = new FileUnit[0];
+            localXamlPageFileList = Array.Empty<FileUnit>();
             localApplicationFile = FileUnit.Empty;
             referenceList = new ArrayList();
 

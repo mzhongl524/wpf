@@ -33,7 +33,6 @@ using MS.Utility;
 using MS.Internal.Automation;
 using MS.Internal.PtsTable;                 // BodyContainerProxy
 using System.Security;
-using System.Security.Permissions;
 
 // Disabling 1634 and 1691:
 // In order to avoid generating warnings about unknown message numbers and
@@ -2456,7 +2455,6 @@ namespace System.Windows
         ///     the ancestor has changed, and the purpose is to allow elements to
         ///     perform actions based on the changed ancestor.
         /// </summary>
-        //CASRemoval:[StrongNameIdentityPermissionAttribute(SecurityAction.InheritanceDemand, PublicKey=Microsoft.Internal.BuildInfo.WCP_PUBLIC_KEY_STRING)]
         internal virtual void OnAncestorChanged()
         {
         }
@@ -3065,7 +3063,6 @@ namespace System.Windows
             }
         }
 
-        //CASRemoval:[StrongNameIdentityPermissionAttribute(SecurityAction.InheritanceDemand, PublicKey=Microsoft.Internal.BuildInfo.WCP_PUBLIC_KEY_STRING)]
         internal virtual bool IgnoreModelParentBuildRoute(RoutedEventArgs args)
         {
             return false;

@@ -1090,11 +1090,6 @@ namespace System.Windows
         /// <summary>
         ///  Add a byte array that contains deferable content
         /// </summary>
-        /// <SecurityNote>
-        /// Critical: sets critical fields _reader and _xamlLoadPermission.
-        /// Safe: data comes from DeferrableContent, where it is critical to set
-        /// </SecurityNote>
-        [SecurityTreatAsSafe, SecurityCritical]
         private void SetDeferrableContent(DeferrableContent deferrableContent)
         {
             Debug.Assert(deferrableContent.Stream != null);
@@ -1124,7 +1119,6 @@ namespace System.Windows
                 if (_reader == null)
                 {
                     _reader = reader;
-                    _xamlLoadPermission = deferrableContent.LoadPermission;
                     SetKeys(keys, deferrableContent.ServiceProvider);
                 }
                 else
@@ -1371,24 +1365,12 @@ namespace System.Windows
             }
         }
 #endif
-        /// <SecurityNote>
-        /// Critical: accesses critical field _reader
-        /// Safe: field is safe to read (only critical to write)
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private Type GetTypeOfFirstObject(KeyRecord keyRecord)
         {
             Type rootType = _reader.GetTypeOfFirstStartObject(keyRecord);
             return rootType ?? typeof(String);
         }
 
-        /// <SecurityNote>
-        /// Critical: Accesses critical fields _reader and _xamlLoadPermission
-        ///           Asserts XamlLoadPermission.
-        /// Safe: _xamlLoadPermission was set critically, and was demanded when the reader was received
-        ///       in DeferrableContent.ctor
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private object CreateObject(KeyRecord key)
         {
             System.Xaml.XamlReader xamlReader = _reader.ReadObject(key);
@@ -1400,26 +1382,9 @@ namespace System.Windows
                 return null;
 
             Uri baseUri = (_rootElement is IUriContext) ? ((IUriContext)_rootElement).BaseUri : _baseUri;
-            if (_xamlLoadPermission != null)
-            {
-                _xamlLoadPermission.Assert();
-                try
-                {
-                    return WpfXamlLoader.LoadDeferredContent(
-                        xamlReader, _objectWriterFactory, false /*skipJournaledProperites*/,
-                        _rootElement, _objectWriterSettings, baseUri);
-                }
-                finally
-                {
-                    CodeAccessPermission.RevertAssert();
-                }
-            }
-            else
-            {
-                return WpfXamlLoader.LoadDeferredContent(
-                        xamlReader, _objectWriterFactory, false /*skipJournaledProperites*/,
-                        _rootElement, _objectWriterSettings, baseUri);
-            }
+            return WpfXamlLoader.LoadDeferredContent(
+                    xamlReader, _objectWriterFactory, false /*skipJournaledProperites*/,
+                    _rootElement, _objectWriterSettings, baseUri);
         }
 
         // Moved "Lookup()" from 3.5 BamlRecordReader to 4.0 ResourceDictionary
@@ -2484,23 +2449,12 @@ namespace System.Windows
             return (_flags & bit) != 0;
         }
 
-        /// <SecurityNote>
-        /// Critical: accesses critical field _reader
-        /// Safe: keeps LoadPermission in sync by nulling it out as well
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private void CloseReader()
         {
             _reader.Close();
             _reader = null;
-            _xamlLoadPermission = null;
         }
 
-        /// <SecurityNote>
-        /// Critical: sets critical fields _reader and _xamlLoadPermission.
-        /// Safe: copies them from another ResourceDictionary instance, where they were set critically.
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private void CopyDeferredContentFrom(ResourceDictionary loadedRD)
         {
             _buffer = loadedRD._buffer;
@@ -2511,7 +2465,6 @@ namespace System.Windows
             _objectWriterSettings = loadedRD._objectWriterSettings;
             _rootElement = loadedRD._rootElement;
             _reader = loadedRD._reader;
-            _xamlLoadPermission = loadedRD._xamlLoadPermission;
             _numDefer = loadedRD._numDefer;
             _deferredLocationList = loadedRD._deferredLocationList;
         }
@@ -2636,17 +2589,6 @@ namespace System.Windows
         private IXamlObjectWriterFactory _objectWriterFactory;
         private XamlObjectWriterSettings _objectWriterSettings;
 
-        /// <SecurityNote>
-        /// Critical: Identifies the permission of the stream in _reader.
-        ///           Will be asserted when realizing deferred content.
-        /// </SecurityNote>
-        [SecurityCritical]
-        private XamlLoadPermission _xamlLoadPermission;
-
-        /// <summary>
-        /// Critical: _xamlLoadPermission needs to be updated whenever this field is updated.
-        /// </summary>
-        [SecurityCritical]
         private Baml2006Reader _reader;
 
         #endregion Data

@@ -18,7 +18,6 @@ using MS.Internal.KnownBoxes;
 using MS.Internal.PresentationFramework;
 using System.Diagnostics;
 using System.Security;
-using System.Security.Permissions;
 
 namespace System.Windows.Controls.Primitives
 {
@@ -742,11 +741,6 @@ namespace System.Windows.Controls.Primitives
             }
         }
 
-        /// <SecurityNote>
-        /// Critical - calling critical InputManager.Current
-        /// Safe - InputManager.Current is not exposed and used temporary to determine the mouse state
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private bool GetMouseLeftButtonReleased()
         {
             return InputManager.Current.PrimaryMouseDevice.LeftButton == MouseButtonState.Released;

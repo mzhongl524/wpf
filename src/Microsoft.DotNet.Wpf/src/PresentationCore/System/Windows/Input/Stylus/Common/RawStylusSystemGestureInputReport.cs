@@ -5,7 +5,6 @@
 using System;
 using System.ComponentModel;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Input.StylusWisp;
 using SR = MS.Internal.PresentationCore.SR;
 using SRID = MS.Internal.PresentationCore.SRID;
@@ -88,11 +87,6 @@ namespace System.Windows.Input
         /// <param name="buttonState">
         ///     Button state info data.
         /// </param>
-        /// <SecurityNote>
-        ///     SafeCritical: This handles critical data in the form of PresentationSource 
-        ///                   There are demands on the critical data(PresentationSource)
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         internal RawStylusSystemGestureInputReport(
             InputMode mode,
             int timestamp,
@@ -146,11 +140,6 @@ namespace System.Windows.Input
         /// <param name="buttonState">
         ///     Button state info data.
         /// </param>
-        /// <SecurityNote>
-        ///     SafeCritical: This handles critical data in the form of PresentationSource 
-        ///                   There are demands on the critical data(PresentationSource)
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         internal RawStylusSystemGestureInputReport(
             InputMode mode,
             int timestamp,

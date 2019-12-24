@@ -21,7 +21,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Security;
-using System.Security.Permissions;
 using System.Text;
 using System.Reflection;
 using System.Collections;
@@ -213,15 +212,7 @@ namespace MS.Internal
        ///
        ///  Read the registry to see if WPF tracing is allowed
        ///
-       ///<SecurityNote>
-       /// Critical - Calls critical code (ReadRegistryValue)
-       /// TreatAsSafe - We consider this safe to expose from the internet, because
-       ///     the value being read is just a flag which enables/disables tracing,
-       ///     and it is only read.  The flag is "ManagedTracing", unber HKCU.  If it is set to
-       ///     1, tracing (from System.Diagnostics) can be enabled/configured using a .config file.
-       ///</SecurityNote>
 
-       [SecurityCritical, SecurityTreatAsSafe]
        [FriendAccessAllowed]
        static internal bool IsWpfTracingEnabledInRegistry()
        {

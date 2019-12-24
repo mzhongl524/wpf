@@ -15,7 +15,6 @@ using System.IO;
 using System.Resources;
 using System.Globalization;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Navigation;
 using System.Diagnostics;
 using System.Reflection;
@@ -35,11 +34,6 @@ namespace MS.Internal.AppModel
 
         #region Public Constructors
 
-        /// <securitynote>
-        /// Critical    -   Accesses member _fullPath.
-        /// TreatAsSafe -   Initializing _fullPath to null is safe
-        /// </securitynote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal ContentFilePart(Package container, Uri uri) :
                 base(container, uri)
         {
@@ -57,15 +51,6 @@ namespace MS.Internal.AppModel
 
         #region Protected Methods
 
-        /// <securitynote>
-        /// Critical    -   Calls critical methods GetEntryAssemblyLocation() and CriticalOpenFile() 
-        ///                 and accesses critical member _fullPath.
-        /// TreatAsSafe -   The Uri supplied at construction is read only and must be on the list
-        ///                 of loose content files supplied at application compile time.  It is ok
-        ///                 to return the stream because we know that the stream will be read only
-        ///                 and cannot be used to get the application into an invalid state.
-        /// </securitynote>
-        [SecurityCritical, SecurityTreatAsSafe]
         protected override Stream GetStreamCore(FileMode mode, FileAccess access)
         {
             Stream stream = null;
@@ -118,16 +103,10 @@ namespace MS.Internal.AppModel
         #region Private Methods
 
 
-        /// <securitynote>
-        /// Asserts for to get the location of the entry assembly
-        /// </securitynote>
-        [SecurityCritical]
         private Uri GetEntryAssemblyLocation()
         {
             Uri entryLocation = null;
-            System.Security.PermissionSet permissionSet = new PermissionSet(null);
-            permissionSet.AddPermission(new FileIOPermission(PermissionState.Unrestricted));
-            permissionSet.Assert();
+
             try
             {
                 entryLocation = new Uri(Application.ResourceAssembly.CodeBase);
@@ -144,31 +123,13 @@ namespace MS.Internal.AppModel
                 // DirectoryNotFoundException, IOException, UnauthorizedAccessException, 
                 // ArgumentOutOfRangeException, FileNotFoundException, NotSupportedException
             }
-            finally
-            {
-                CodeAccessPermission.RevertAssert();
-            }
+
             return entryLocation;
         }
 
-        /// <securitynote>
-        /// Asserts to open the file
-        /// </securitynote>
-        [SecurityCritical]
         private Stream CriticalOpenFile(string filename)
         {
-            Stream s = null;
-            FileIOPermission filePermission = new FileIOPermission(FileIOPermissionAccess.Read, filename);
-            filePermission.Assert();
-            try
-            {
-                s = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read, ResourceContainer.FileShare);
-            }
-            finally
-            {
-                CodeAccessPermission.RevertAssert();
-            }
-            return s;
+            return System.IO.File.Open(filename, FileMode.Open, FileAccess.Read, ResourceContainer.FileShare);
         }
 
         #endregion
@@ -181,10 +142,6 @@ namespace MS.Internal.AppModel
 
         #region Private Members
 
-        /// <securitynote>
-        /// Contains critical path information that shouldn't be disclosed.
-        /// </securitynote>
-        [SecurityCritical]
         private string _fullPath;
 
         #endregion Private Members

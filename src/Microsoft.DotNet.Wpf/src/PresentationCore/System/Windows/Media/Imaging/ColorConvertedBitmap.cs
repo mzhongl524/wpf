@@ -16,7 +16,6 @@ using System.Reflection;
 using MS.Internal;
 using MS.Win32.PresentationCore;
 using System.Security;
-using System.Security.Permissions;
 using System.Diagnostics;
 using System.Windows.Media;
 using System.Globalization;
@@ -92,11 +91,6 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Prepare the bitmap to accept initialize paramters.
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - access critical resources
-        /// PublicOK - All inputs verified
-        /// </SecurityNote>
-        [SecurityCritical ]
         public void EndInit()
         {
             WritePreamble();
@@ -119,10 +113,6 @@ namespace System.Windows.Media.Imaging
         ///
         /// Create the unmanaged resources
         ///
-        /// <SecurityNote>
-        /// Critical - access critical resource
-        /// </SecurityNote>
-        [SecurityCritical]
         internal override void FinalizeCreation()
         {
             _bitmapInit.EnsureInitializedComplete();

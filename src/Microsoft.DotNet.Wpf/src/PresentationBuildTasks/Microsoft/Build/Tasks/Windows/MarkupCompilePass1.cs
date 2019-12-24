@@ -14,7 +14,6 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Security;
-using System.Security.Permissions;
 
 using System.Globalization;
 using System.Diagnostics;
@@ -102,7 +101,7 @@ namespace Microsoft.Build.Tasks.Windows
         /// <returns></returns>
         public override bool Execute()
         {
-            TaskHelper.DisplayLogo(Log, SR.Get(SRID.MarkupCompilePass1Task));
+            TaskHelper.DisplayLogo(Log, nameof(MarkupCompilePass1));
 
             bool bSuccess = true;
 
@@ -597,7 +596,7 @@ namespace Microsoft.Build.Tasks.Windows
             get
             {
                if (_generatedCodeFiles == null)
-                   _generatedCodeFiles = new TaskItem[0];
+                   _generatedCodeFiles = Array.Empty<TaskItem>();
                return _generatedCodeFiles;
             }
 
@@ -616,7 +615,7 @@ namespace Microsoft.Build.Tasks.Windows
             get
             {
                if (_generatedBamlFiles == null)
-                   _generatedBamlFiles = new TaskItem[0];
+                   _generatedBamlFiles = Array.Empty<TaskItem>();
                return _generatedBamlFiles;
             }
 
@@ -635,7 +634,7 @@ namespace Microsoft.Build.Tasks.Windows
             get
             {
                 if (_generatedLocalizationFiles == null)
-                    _generatedLocalizationFiles = new TaskItem[0];
+                    _generatedLocalizationFiles = Array.Empty<TaskItem>();
 
                 return _generatedLocalizationFiles;
             }

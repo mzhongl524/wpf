@@ -25,7 +25,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;  // ConditionalWeakTable
 using System.Security;
-using System.Security.Permissions;
 using System.Xaml;
 
 namespace System.Windows.Diagnostics
@@ -54,7 +53,6 @@ namespace System.Windows.Diagnostics
         }
 
         // this method is (also) called via private reflection from test code
-        [SecuritySafeCritical]
         private static void InitializeEnableXamlSourceInfo(string value)
         {
             if (VisualDiagnostics.IsEnabled &&

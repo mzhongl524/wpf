@@ -17,6 +17,13 @@
     <LangVersion Condition="'$(LangVersion)'==''">8.0</LangVersion>
     <CLSCompliant Condition="'$(CLSCompliant)'==''">true</CLSCompliant>
     <IncludeDllSafeSearchPathAttribute Condition="'$(IncludeDllSafeSearchPathAttribute )'==''">true</IncludeDllSafeSearchPathAttribute>
+
+    <!--
+    Properly calculates the RuntimeIdentifier based on the Platform type. We don't want to affect the build by actually setting RuntimeIdentifier.
+    Those that are interested in setting the RuntimeIdentifier or having a property that mirrors it can use this one here.
+    -->
+    <WpfRuntimeIdentifier Condition="('$(Platform)'!='AnyCPU' and '$(Platform)'!='Win32') Or $(Platform.EndsWith('64'))">win-$(Platform)</WpfRuntimeIdentifier>
+    <WpfRuntimeIdentifier Condition="'$(Platform)'=='AnyCPU' or '$(Platform)'=='Win32' or '$(Platform)'=='x86'">win-x86</WpfRuntimeIdentifier>
   </PropertyGroup>
 
   <Import Project="$(WpfArcadeSdkToolsDir)RuntimeFrameworkReference.props"/>
@@ -32,6 +39,8 @@
   <Import Project="$(WpfArcadeSdkToolsDir)Pbt.props" />
   <Import Project="$(WpfArcadeSdkToolsDir)Signing.props" />
   <Import Project="$(WpfArcadeSdkToolsDir)CodeGen.props" />
+  <Import Project="$(WpfArcadeSdkToolsDir)ApiCompat.props" />
+  <Import Project="$(WpfArcadeSdkToolsDir)GenApi.props" />
 
   <PropertyGroup>
     <DebugType>full</DebugType>
@@ -52,13 +61,30 @@
     <!--
       Temporarily suppress NU3027
       https://github.com/dotnet/arcade/issues/2304
+      
+      NU5131, NU5128 - Our transport packages do not conform to the layout NuGet wants.
     -->
-    <NoWarn>$(NoWarn);NU3027</NoWarn>
+    <NoWarn>$(NoWarn);NU3027;NU5131;NU5128</NoWarn>
     
     <!-- 
         Suppress NU1605 (Package downgrade warnings) when building inside Visual Studio
     -->
     <NoWarn Condition="'$(BuildingInsideVisualStudio)'=='true'">$(NoWarn);NU1605</NoWarn>
+
+    <!-- 
+
+      Support for suppressing warnings by supplying /p:AdditionalNoWarn=0123;4567 from 
+      dotnet.exe/msbuild commandline.
+      
+      Helpful for debugging, and/or working through transient build problems, compiler issues etc. 
+      
+      Note that it is not possible to supply /p:NoWarn=0123;4567 successfully - this will cause the 
+      <NoWarn>$(NoWarn);....</NoWarn> property specifications in projects/props/targets to be overridden
+      and ignored, in turn resulting in additional build-failures. 
+      
+      ** Note**: AdditionalNoWarn should not be used in projects/props/targets.
+    -->
+    <NoWarn Condition="'$(AdditionalNoWarn)' != '' And '$(NoWarn)' != ''">$(AdditionalNoWarn);$(NoWarn)</NoWarn>
   </PropertyGroup>
 
   <!-- When an Sdk-style project sets NoTargets=true, it will produce no assemblies -->

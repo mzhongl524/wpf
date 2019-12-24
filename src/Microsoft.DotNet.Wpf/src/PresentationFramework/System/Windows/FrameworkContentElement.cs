@@ -23,7 +23,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.TextFormatting;
 using System.Windows.Markup;
-using System.Security.Permissions;
 
 #if DEBUG
 using System.Reflection;
@@ -1295,7 +1294,6 @@ namespace System.Windows
         {
         }
 
-        //CASRemoval:[StrongNameIdentityPermissionAttribute(SecurityAction.InheritanceDemand, PublicKey=Microsoft.Internal.BuildInfo.WCP_PUBLIC_KEY_STRING)]
         internal virtual bool IgnoreModelParentBuildRoute(RoutedEventArgs args)
         {
             return false;
@@ -1449,7 +1447,6 @@ namespace System.Windows
         ///     the ancestor has changed, and the purpose is to allow elements to
         ///     perform actions based on the changed ancestor.
         /// </summary>
-        //CASRemoval:[StrongNameIdentityPermissionAttribute(SecurityAction.InheritanceDemand, PublicKey=Microsoft.Internal.BuildInfo.WCP_PUBLIC_KEY_STRING)]
         internal virtual void OnAncestorChanged()
         {
         }

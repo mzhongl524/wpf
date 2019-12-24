@@ -625,7 +625,6 @@ namespace System.Windows
         //  1. Is an alternative approach to building a visual tree from a FEF
         //  2. Is used by ContentPresenter and Hyperlink to host their content
         //
-        //CASRemoval:[StrongNameIdentityPermissionAttribute(SecurityAction.InheritanceDemand, PublicKey=Microsoft.Internal.BuildInfo.WCP_PUBLIC_KEY_STRING)]
         internal virtual bool BuildVisualTree(FrameworkElement container)
         {
             return false;
@@ -964,32 +963,11 @@ namespace System.Windows
             return rootObject;
         }
 
-        /// <SecurityNote>
-        /// Critical: Accesses and asserts critical LoadPermission
-        /// Safe: The XAML to load comes from _templateHolder.PlayXaml, which is SecurityCritcal and
-        ///       guaranteed to have demanded _templateHolder.LoadPermission before being set.
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private void LoadTemplateXaml(XamlObjectWriter objectWriter)
         {
             System.Xaml.XamlReader templateReader = _templateHolder.PlayXaml();
             Debug.Assert(templateReader != null, "PlayXaml returned null");
-            if (_templateHolder.LoadPermission != null)
-            {
-                _templateHolder.LoadPermission.Assert();
-                try
-                {
-                    LoadTemplateXaml(templateReader, objectWriter);
-                }
-                finally
-                {
-                    CodeAccessPermission.RevertAssert();
-                }
-            }
-            else
-            {
-                LoadTemplateXaml(templateReader, objectWriter);
-            }
+            LoadTemplateXaml(templateReader, objectWriter);
         }
 
         private void LoadTemplateXaml(System.Xaml.XamlReader templateReader, XamlObjectWriter currentWriter)

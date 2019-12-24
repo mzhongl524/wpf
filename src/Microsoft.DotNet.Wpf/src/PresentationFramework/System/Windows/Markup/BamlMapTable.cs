@@ -41,7 +41,6 @@ using System.Windows.Media.Media3D;
 using System.Windows.Markup;
 using System.Windows.Shapes;
 using System.Security;
-using System.Security.Permissions;
 using MS.Internal.PresentationFramework;
 
 #endif
@@ -60,10 +59,6 @@ namespace System.Windows.Markup
 {
     // Used to read/write mapping Baml Ids
     // to Assembly, types, namespaces, etc.
-    // <SecurityNote>
-    // This code should always be transparent.  Meaning you should never add
-    // SecurityCritical to this section of the code.
-    // </SecurityNote>
     internal class BamlMapTable
     {
         // Welcome to the world of "known types".

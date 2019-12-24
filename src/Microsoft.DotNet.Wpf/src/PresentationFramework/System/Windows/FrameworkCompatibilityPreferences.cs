@@ -6,6 +6,7 @@ using System;
 using System.Collections.Specialized;   // NameValueCollection
 using System.Configuration;             // ConfigurationManager
 using System.Runtime.Versioning;
+using MS.Internal;
 
 namespace System.Windows
 {
@@ -15,9 +16,14 @@ namespace System.Windows
 
         static FrameworkCompatibilityPreferences()
         {
-#if NETFX
+#if NETFX && !NETCOREAPP
             _targetsDesktop_V4_0 = BinaryCompatibility.AppWasBuiltForFramework == TargetFrameworkId.NetFramework
                 && !BinaryCompatibility.TargetsAtLeast_Desktop_V4_5;
+#elif NETCOREAPP
+            // When building for NETCOREAPP, set this to false
+            // to indicate that quirks should be treated as if they are running on 
+            // .NET 4.5+
+            _targetsDesktop_V4_0 = false;
 #else
             _targetsDesktop_V4_0 = false;
 #endif
@@ -34,7 +40,6 @@ namespace System.Windows
 
             if (appSettings != null)
             {
-                SetHandleTwoWayBindingToPropertyWithNonPublicSetterFromAppSettings(appSettings);
                 SetUseSetWindowPosForTopmostWindowsFromAppSettings(appSettings);
                 SetVSP45CompatFromAppSettings(appSettings);
                 SetScrollingTraceFromAppSettings(appSettings);
@@ -59,8 +64,10 @@ namespace System.Windows
 
         #region AreInactiveSelectionHighlightBrushKeysSupported
 
-#if NETFX
+#if NETFX && !NETCOREAPP
         private static bool _areInactiveSelectionHighlightBrushKeysSupported = BinaryCompatibility.TargetsAtLeast_Desktop_V4_5 ? true : false;
+#elif NETCOREAPP
+        private static bool _areInactiveSelectionHighlightBrushKeysSupported = true;
 #else
         private static bool _areInactiveSelectionHighlightBrushKeysSupported = true;
 #endif
@@ -93,8 +100,10 @@ namespace System.Windows
 
         #region KeepTextBoxDisplaySynchronizedWithTextProperty
 
-#if NETFX
+#if NETFX && !NETCOREAPP
         private static bool _keepTextBoxDisplaySynchronizedWithTextProperty = BinaryCompatibility.TargetsAtLeast_Desktop_V4_5 ? true : false;
+#elif NETCOREAPP
+        private static bool _keepTextBoxDisplaySynchronizedWithTextProperty = true;
 #else
         private static bool _keepTextBoxDisplaySynchronizedWithTextProperty = true;
 #endif
@@ -163,77 +172,7 @@ namespace System.Windows
 
         #endregion KeepTextBoxDisplaySynchronizedWithTextProperty
 
-        #region HandleTwoWayBindingToPropertyWithNonPublicSetter
-
-        // the different ways we can handle a TwoWay binding to a propery with non-public setter.
-        // These must appear in order, from tightest to loosest.
-        internal enum HandleBindingOptions
-        {
-            Throw,      // 4.0 behavior - throw an exception
-            Disallow,   // diagnostic behavior - don't throw, but don't allow updates
-            Allow,      // 4.5RTM behavior - allow the binding to update
-        }
-
-        // this flag defaults to:
-        //      partial-trust           -> Throw    (plug security hole)
-        //      wrong target framework  -> Disallow (app probably not built by VS.  E.g. ServerManager)
-        //      target = 4.5            -> Allow    (compat with 4.5RTM)
-        //      any other target        -> Throw    (compat with 4.0)
-#if NETFX
-        private static HandleBindingOptions _handleTwoWayBindingToPropertyWithNonPublicSetter =
-                !MS.Internal.SecurityHelper.IsFullTrustCaller() ? HandleBindingOptions.Throw :
-                BinaryCompatibility.AppWasBuiltForFramework != TargetFrameworkId.NetFramework ? HandleBindingOptions.Disallow :
-                BinaryCompatibility.AppWasBuiltForVersion == 40500 ? HandleBindingOptions.Allow :
-                /* else */  HandleBindingOptions.Throw;
-#else
-        private static HandleBindingOptions _handleTwoWayBindingToPropertyWithNonPublicSetter = HandleBindingOptions.Throw;
-#endif
-
-
-        internal static HandleBindingOptions HandleTwoWayBindingToPropertyWithNonPublicSetter
-        {
-            get { return _handleTwoWayBindingToPropertyWithNonPublicSetter; }
-            set
-            {
-                lock (_lockObject)
-                {
-                    if (_isSealed)
-                    {
-                        throw new InvalidOperationException(SR.Get(SRID.CompatibilityPreferencesSealed, "HandleTwoWayBindingToPropertyWithNonPublicSetter", "FrameworkCompatibilityPreferences"));
-                    }
-
-                    // apps are allowed to tighten the restriction, but not to loosen it
-                    if (value.CompareTo(_handleTwoWayBindingToPropertyWithNonPublicSetter) > 0)
-                    {
-                        throw new ArgumentException();
-                    }
-
-                    _handleTwoWayBindingToPropertyWithNonPublicSetter = value;
-                }
-            }
-        }
-
-        internal static HandleBindingOptions GetHandleTwoWayBindingToPropertyWithNonPublicSetter()
-        {
-            Seal();
-
-            return HandleTwoWayBindingToPropertyWithNonPublicSetter;
-        }
-
-        static void SetHandleTwoWayBindingToPropertyWithNonPublicSetterFromAppSettings(NameValueCollection appSettings)
-        {
-            // user can use config file to tighten the restriction
-            string s = appSettings["HandleTwoWayBindingToPropertyWithNonPublicSetter"];
-            HandleBindingOptions value;
-            if (Enum.TryParse(s, true, out value) && value.CompareTo(HandleTwoWayBindingToPropertyWithNonPublicSetter) <= 0)
-            {
-                HandleTwoWayBindingToPropertyWithNonPublicSetter = value;
-            }
-        }
-
-        #endregion AllowTwoWayBindingToPropertyWithNonPublicSetter
-
-        // DevDiv #681144:  There is a bug in the Windows desktop window manager which can cause
+        // There is a bug in the Windows desktop window manager which can cause
         // incorrect z-order for windows when several conditions are all met:
         // (a) windows are parented/owned across different threads or processes
         // (b) a parent/owner window is also owner of a topmost window (which needn't be visible)

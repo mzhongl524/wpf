@@ -9,10 +9,7 @@
 
 using System;
 using System.IO;
-
-using System.Net; // WebPermission. 
 using System.Security;
-using System.Security.Permissions;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Navigation;
@@ -24,8 +21,6 @@ using System.IO.Packaging;
 using MS.Internal.PresentationFramework;
 using System.ComponentModel;
 using System.Windows.Controls;
-
-using PackUriHelper = MS.Internal.IO.Packaging.PackUriHelper;
 
 namespace MS.Internal.AppModel
 {
@@ -67,13 +62,6 @@ namespace MS.Internal.AppModel
         // <summary>
         // Creates an object instance from a Xaml stream and it's Uri
         // </summary>
-        ///<SecurityNote>
-        /// Critical    - Keep track of this, as sandboxing is meant to be a way for an application to 
-        ///                 isolate xaml content from the hosting application.
-        /// TreatAsSafe - the act of putting this content in a new webbrowser control (and by extention, a new PresentationHost) 
-        ///               isolates the xaml content from the rest of the application.
-        ///</SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal static object XamlConverter(Stream stream, Uri baseUri, bool canUseTopLevelBrowser, bool sandboxExternalContent, bool allowAsync, bool isJournalNavigation, out XamlReader asyncObjectConverter)
         {
             asyncObjectConverter = null;

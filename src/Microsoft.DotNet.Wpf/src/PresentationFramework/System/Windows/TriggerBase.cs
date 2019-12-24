@@ -5,7 +5,6 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Windows.Markup;
-using System.Security.Permissions;
 
 using MS.Utility;
 using MS.Internal;
@@ -226,7 +225,6 @@ namespace System.Windows
             PropertyValues.Add(propertyValue);
         }
 
-        //CASRemoval:[StrongNameIdentityPermission(SecurityAction.InheritanceDemand, PublicKey = Microsoft.Internal.BuildInfo.WCP_PUBLIC_KEY_STRING)]
         internal override void Seal()
         {
             // Verify Context Access

@@ -13,7 +13,6 @@ using System.Windows.Interop;
 using System.Windows.Input.StylusWisp;
 using System.Windows.Input.StylusPointer;
 using System.Security;
-using System.Security.Permissions;
 
 using SR = MS.Internal.PresentationCore.SR;
 using SRID = MS.Internal.PresentationCore.SRID;
@@ -35,7 +34,6 @@ namespace System.Windows.Input.StylusPlugIns
     {
         #region Static Factory Methods
 
-        [SecuritySafeCritical]
         internal static StylusPlugInCollectionBase Create(StylusPlugInCollection wrapper)
         {
             StylusPlugInCollectionBase instance;

@@ -17,7 +17,6 @@ using MS.Internal.PresentationCore;                        // SecurityHelper
 using System.Collections.Specialized;
 using System.IO;
 using System.Security;
-using System.Security.Permissions;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -51,11 +50,6 @@ namespace System.Windows
         /// Clear the system clipboard which the clipboard is emptied.
         /// SetDataObject.
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - access critical data (clipboard information)
-        /// PublicOk -  Clearing the clipboard is not inherently unsafe.
-        /// </SecurityNote>
-        [SecurityCritical]
         public static void Clear()
         {
             // Retry OLE operations several times as mitigation for clipboard locking issues in TS sessions.
@@ -96,7 +90,7 @@ namespace System.Windows
         {
             if (format == null)
             {
-                throw new ArgumentNullException("format");
+                throw new ArgumentNullException(nameof(format));
             }
 
             if (format == string.Empty)
@@ -140,7 +134,7 @@ namespace System.Windows
         {
             if (!DataFormats.IsValidTextDataFormat(format))
             {
-                throw new InvalidEnumArgumentException("format", (int)format, typeof(TextDataFormat));
+                throw new InvalidEnumArgumentException(nameof(format), (int)format, typeof(TextDataFormat));
             }
 
             return ContainsDataInternal(DataFormats.ConvertToDataFormats(format));
@@ -188,7 +182,7 @@ namespace System.Windows
         {
             if (format == null)
             {
-                throw new ArgumentNullException("format");
+                throw new ArgumentNullException(nameof(format));
             }
 
             if (format == string.Empty)
@@ -241,7 +235,7 @@ namespace System.Windows
         {
             if (!DataFormats.IsValidTextDataFormat(format))
             {
-                throw new InvalidEnumArgumentException("format", (int)format, typeof(TextDataFormat));
+                throw new InvalidEnumArgumentException(nameof(format), (int)format, typeof(TextDataFormat));
             }
 
             string text;
@@ -263,7 +257,7 @@ namespace System.Windows
         {
             if (audioBytes == null)
             {
-                throw new ArgumentNullException("audioBytes");
+                throw new ArgumentNullException(nameof(audioBytes));
             }
 
             SetAudio(new MemoryStream(audioBytes));
@@ -276,7 +270,7 @@ namespace System.Windows
         {
             if (audioStream == null)
             {
-                throw new ArgumentNullException("audioStream");
+                throw new ArgumentNullException(nameof(audioStream));
             }
 
             SetDataInternal(DataFormats.WaveAudio, audioStream);
@@ -289,7 +283,7 @@ namespace System.Windows
         {
             if (format == null)
             {
-                throw new ArgumentNullException("format");
+                throw new ArgumentNullException(nameof(format));
             }
 
             if (format == string.Empty)
@@ -299,7 +293,7 @@ namespace System.Windows
 
             if (data == null)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             }
 
             SetDataInternal(format, data);
@@ -312,7 +306,7 @@ namespace System.Windows
         {
             if (fileDropList == null)
             {
-                throw new ArgumentNullException("fileDropList");
+                throw new ArgumentNullException(nameof(fileDropList));
             }
 
             if (fileDropList.Count == 0)
@@ -347,7 +341,7 @@ namespace System.Windows
         {
             if (image == null)
             {
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
             }
 
             SetDataInternal(DataFormats.Bitmap, image);
@@ -360,7 +354,7 @@ namespace System.Windows
         {
             if (text == null)
             {
-                throw new ArgumentNullException("text");
+                throw new ArgumentNullException(nameof(text));
             }
 
             SetText(text, TextDataFormat.UnicodeText);
@@ -373,12 +367,12 @@ namespace System.Windows
         {
             if (text == null)
             {
-                throw new ArgumentNullException("text");
+                throw new ArgumentNullException(nameof(text));
             }
 
             if (!DataFormats.IsValidTextDataFormat(format))
             {
-                throw new InvalidEnumArgumentException("format", (int)format, typeof(TextDataFormat));
+                throw new InvalidEnumArgumentException(nameof(format), (int)format, typeof(TextDataFormat));
             }
 
             SetDataInternal(DataFormats.ConvertToDataFormats(format), text);
@@ -390,14 +384,8 @@ namespace System.Windows
         /// <remarks>
         ///     Callers must have UIPermission(UIPermissionClipboard.AllClipboard) to call this API.
         /// </remarks>
-        /// <SecurityNote>
-        /// Critical - access critical data (clipboard information)
-        /// PublicOk - demands appropriate permission (AllClipboard)
-        /// </SecurityNote>
-        [SecurityCritical]
         public static IDataObject GetDataObject() 
         {
-            SecurityHelper.DemandAllClipboardPermission();
 
             return GetDataObjectInternal();
         }
@@ -416,7 +404,7 @@ namespace System.Windows
 
             if (data == null)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             }
 
             bReturn = false;
@@ -463,18 +451,12 @@ namespace System.Windows
         /// <remarks>
         ///     Callers must have UIPermission(UIPermissionClipboard.AllClipboard) to call this API.
         /// </remarks>
-        /// <SecurityNote>
-        /// Critical - access critical data (clipboard information)
-        /// PublicOk - demands appropriate permission (AllClipboard)
-        /// </SecurityNote>
-        [SecurityCritical]
         public static void SetDataObject(object data) 
         {
-            SecurityHelper.DemandAllClipboardPermission();
 
             if (data == null)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             }
 
             SetDataObject(data, false);
@@ -493,15 +475,8 @@ namespace System.Windows
         /// <remarks>
         ///     Callers must have UIPermission(UIPermissionClipboard.AllClipboard) to call this API.
         /// </remarks>
-        /// <SecurityNote>
-        /// Critical - calls critical code (set clipboard), and potentially deals 
-        ///            with unmanaged pointers
-        /// PublicOk - Demands All Clipboard permissions
-        /// </SecurityNote>
-        [SecurityCritical]
         public static void SetDataObject(object data, bool copy)
         {
-            SecurityHelper.DemandAllClipboardPermission();
             CriticalSetDataObject(data,copy);
         }
 
@@ -516,17 +491,6 @@ namespace System.Windows
         //------------------------------------------------------
 
         /// <summary>
-        /// Determines whether the legacy dangerous clipboard deserialization mode should be used based on the AppContext switch and Device Guard policies.
-        /// </summary>
-        /// <returns>
-        /// If Device Guard is enabled this method returns false, otherwise it returns the AppContext switch value.
-        /// </returns>
-        internal static bool UseLegacyDangerousClipboardDeserializationMode()
-        {
-            return !IsDeviceGuardEnabled && CoreAppContextSwitches.EnableLegacyDangerousClipboardDeserializationMode;
-        }
-
-        /// <summary>
         /// Places data on the system Clipboard and uses copy to specify whether the data 
         /// should remain on the Clipboard after the application exits.
         /// </summary>
@@ -536,17 +500,12 @@ namespace System.Windows
         /// <param name="copy">
         /// Specify whether the data should remain on the clipboard after the application exits.
         /// </param>
-        /// <SecurityNote>
-        /// Critical - calls critical code (set clipboard), and potentially deals 
-        ///            with unmanaged pointers
-        /// </SecurityNote>
-        [SecurityCritical]
         [FriendAccessAllowed]
         internal static void CriticalSetDataObject(object data, bool copy)
         {
             if (data == null)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             }
 
             IComDataObject dataObject;
@@ -557,7 +516,6 @@ namespace System.Windows
             }
             else if (data is IComDataObject)
             {
-                SecurityHelper.DemandUnmanagedCode();
                 dataObject = (IComDataObject)data;
             }
             else
@@ -599,25 +557,10 @@ namespace System.Windows
             }
         }
 
-        /// <SecurityNote>
-        /// Critical - access critical data (clipboard information)
-        /// TreatAsSafe: Returning a bool indicating whether there is data on the clipboard is ok
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         [FriendAccessAllowed]
         internal static bool IsClipboardPopulated()
         {
-            bool isPopulated = false;
-            (new UIPermission(UIPermissionClipboard.AllClipboard)).Assert();//BlessedAssert
-            try
-            {
-                isPopulated = (GetDataObjectInternal() != null);
-            }
-            finally
-            {
-                UIPermission.RevertAssert();
-            }
-            return isPopulated;
+            return (GetDataObjectInternal() != null);
         }
 
         #endregion Internal Methods
@@ -650,11 +593,6 @@ namespace System.Windows
         /// <summary>
         /// Loads Wldp.dll and looks for WldpIsDynamicCodePolicyEnabled to determine whether DeviceGuard is enabled.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: Attempts to load unmanaged wldp.dll and attempts to get the proc address of an RS4+ only export.
-        ///     TreatAsSafe: Does not return critical data, does not change critical state, does not consume untrusted input.
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         private static bool IsDynamicCodePolicyEnabled()
         {
             bool isEnabled = false;
@@ -691,64 +629,6 @@ namespace System.Windows
             return isEnabled;
         }
 
-        /// <SecurityNote>
-        ///     Critical: This method calls into ExtractAppDomainPermissionSetMinusSiteOfOrigin  this is used to make trust decision to 
-        ///     copy paste content and is hence important to be tracked. Also it asserts to get to data
-        /// </SecurityNote>
-        [SecurityCritical]
-        private static bool IsDataObjectFromLessPriviligedApplicationDomain(IDataObject dataObjectToApply)
-        {
-            bool retVal = false;
-            object applicationTrust = null;
-            // Extract the permission set in case of xaml cut and paste
-            // extract permission set if it exists if not data came from full trust app and we do not care
-            bool isApplicationTrustFormatPresent = false;
-            isApplicationTrustFormatPresent = dataObjectToApply.GetDataPresent(DataFormats.ApplicationTrust, /*autoConvert:*/false);
-            if (isApplicationTrustFormatPresent)
-            {
-                applicationTrust = dataObjectToApply.GetData(DataFormats.ApplicationTrust, /*autoConvert:*/false);
-            }
-
-            if (applicationTrust != null)
-            {
-                string applicationTrustText = null;
-                // convert to string
-                applicationTrustText = applicationTrust.ToString();
-
-
-                // Convert string to permission set for getting permission set of source
-                PermissionSet permissionSetSource;
-                try
-                {
-                    SecurityElement securityElement = SecurityElement.FromString(applicationTrustText);
-                    permissionSetSource = new System.Security.PermissionSet(PermissionState.None);
-                    permissionSetSource.FromXml(securityElement);
-                }
-                catch(XmlSyntaxException)
-                {
-                    // This is the condition where we have Malformed XML in the clipboard for application trust
-                    // here we will fail silently since we do not want to break arbitrary applications
-                    // but since we cannot establish the validity of the application trust content we will fall back to
-                    // whatever is more secure
-                    return  true;
-                }
-
-                //extract permission set for the current appdomain which is target
-                PermissionSet permissionSetDestination = SecurityHelper.ExtractAppDomainPermissionSetMinusSiteOfOrigin();
-                //Compare permissions sets
-                if (!permissionSetDestination.IsSubsetOf(permissionSetSource))
-                {
-                    retVal = true; // in case target is not subset of source revert to unicode or text
-                }
-            }
-            return retVal;
-        }
-
-        /// <SecurityNote>
-        /// Critical: This code extracts the DataObject from the clipboard
-        /// which can be used to sniff clipboard
-        /// </SecurityNote>
-        [SecurityCritical]
         private static IDataObject GetDataObjectInternal()
         {
             IDataObject dataObject;
@@ -776,51 +656,31 @@ namespace System.Windows
                 Thread.Sleep(OleRetryDelay);
             }
 
-            if (oleDataObject is IDataObject)
+            if (oleDataObject is IDataObject && !Marshal.IsComObject(oleDataObject))
             {
                 dataObject = (IDataObject)oleDataObject;
             }
             else if (oleDataObject != null)
             {
+                // Wrap any COM objects or objects that don't implement <see cref="T:System.Windows.IDataObject"/>.
+                // In the case of COM objects, this protects us from a <see cref="T:System.InvalidOperationException"/> from the marshaler 
+                // when calling <see cref="M:System.Windows.IDataObject.GetData(T:System.Type)"/> due to <see cref="T:System.Type"/> 
+                // not being marked with the <see cref="T:System.Runtime.InteropServices.COMVisibleAttribute"/>.
                 dataObject = new DataObject(oleDataObject);
             }
             else
             {
                 dataObject = null;
             }
-            // We make this check outside of the loop independant of whether the data is ole data object or IDataObject 
-            // Although one is unable to create an OleDataObject in partial trust we still need to ensure that if he did
-            // we strip the formats we care about by wrapping in ConstrainedDataObject
-            if (dataObject != null)
-            {
-                // this is the case we are concerend about where content comes from partial trust into full trust
-                // in the case where data contained is in one of the two formats: XAML or ApplicationTrust we return a wrapper
-                // that blocks access to these
-                if (IsDataObjectFromLessPriviligedApplicationDomain(dataObject) &&
-                    (dataObject.GetDataPresent(DataFormats.Xaml, /*autoConvert:*/false) ||
-                     dataObject.GetDataPresent(DataFormats.ApplicationTrust, /*autoConvert:*/false)))
-                {
-                    // in this case we set the data object to be a wrapper data object that blocks off
-                    // xaml or application trust formats if they exist
-                    dataObject = new ConstrainedDataObject(dataObject);
-                }
-            }
+
             return dataObject;
         }
 
         /// <summary>
         /// Query the specified data format from Clipboard.
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - Accesses the clipboard.
-        /// TreatAsSafe - We demand clipboard permission. Consider making 
-        ///               this method transparent and removing the clipboard demand
-        ///               in post-Dev10. This might be safe to do.
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private static bool ContainsDataInternal(string format)
         {
-            SecurityHelper.DemandAllClipboardPermission();
             bool isFormatAvailable = false;
 
             if (IsDataFormatAutoConvert(format))

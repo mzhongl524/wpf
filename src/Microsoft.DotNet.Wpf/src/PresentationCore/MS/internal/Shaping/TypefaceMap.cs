@@ -10,7 +10,6 @@
 
 using System;
 using System.Security;
-using System.Security.Permissions;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -75,11 +74,6 @@ namespace MS.Internal.Shaping
         /// <summary>
         /// Compute a list of shapeable text objects for the specified character string
         /// </summary>
-        /// <SecurityNote>
-        /// Critical      - calls critical methods (PinAndGetCharacterPointer, Itemize)
-        /// TreatAsSafe   - only returns shaping info for the given string
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal void GetShapeableText(
             CharacterBufferReference    characterBufferReference,
             int                         stringLength,

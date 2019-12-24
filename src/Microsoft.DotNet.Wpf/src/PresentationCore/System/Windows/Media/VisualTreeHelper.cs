@@ -9,7 +9,6 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using System.Security.Permissions;
 using System.Windows.Media.Effects;
 
 using System.Collections;
@@ -510,7 +509,6 @@ namespace System.Windows.Media
         /// </summary>
         /// <param name="visual"></param>
         /// <param name="dc"></param>
-        //CASRemoval:[StrongNameIdentityPermission(SecurityAction.LinkDemand, PublicKey=Microsoft.Internal.BuildInfo.WCP_PUBLIC_KEY_STRING)]
         static public void Walk(Visual visual, DrawingContext dc)
         {
             VisualTreeFlattener flattener = new VisualTreeFlattener(dc);

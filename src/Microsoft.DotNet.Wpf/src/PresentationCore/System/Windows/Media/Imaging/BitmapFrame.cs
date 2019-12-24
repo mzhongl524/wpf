@@ -18,7 +18,6 @@ using System.Diagnostics;
 using System.Windows.Media;
 using System.Globalization;
 using System.Security;
-using System.Security.Permissions;
 using System.Runtime.InteropServices;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Composition;
@@ -397,10 +396,6 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Metadata
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - Access only granted if SiteOfOrigin demanded.
-        /// </SecurityNote>
-        [SecurityCritical]
         internal BitmapMetadata _metadata;
 
         /// ColorContexts collection

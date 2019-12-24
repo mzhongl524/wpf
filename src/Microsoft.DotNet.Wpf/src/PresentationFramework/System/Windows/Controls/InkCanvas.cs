@@ -26,7 +26,6 @@ using System.IO;
 using System.Windows;
 using System.Collections.Generic;
 using System.Security;
-using System.Security.Permissions;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.Windows.Data;
@@ -92,7 +91,7 @@ namespace System.Windows.Controls
 
             CommandHelpers.RegisterCommandHandler(ownerType, InkCanvas.DeselectCommand,
                 new ExecutedRoutedEventHandler(_OnCommandExecuted), new CanExecuteRoutedEventHandler(_OnQueryCommandEnabled),
-                SRID.InkCanvasDeselectKey, SRID.InkCanvasDeselectKeyDisplayString);
+                KeyGesture.CreateFromResourceStrings(InkCanvasDeselectKey, SRID.InkCanvasDeselectKeyDisplayString));
 
             //
             //set our clipping
@@ -1053,11 +1052,6 @@ namespace System.Windows.Controls
         /// <param name="e">InkCanvasStrokeCollectedEventArgs to raise the event with</param>
         /// <param name="userInitiated">true only if 100% of the stylusPoints that makes up the stroke
         /// came from eventargs with the UserInitiated flag set to true</param>
-        /// <SecurityNote>
-        ///     Critical: Calls critical method GestureRecognizer.CriticalRecognize.  It is important
-        ///         that this is only called if userInitiated is true.
-        /// </SecurityNote>
-        [SecurityCritical]
         internal void RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs e, bool userInitiated)
         {
             Debug.Assert(e != null, "EventArg can not be null");
@@ -1947,12 +1941,6 @@ namespace System.Windows.Controls
                 return false;
             }
 
-            // Check whether the caller has the clipboard permission.
-            if ( !SecurityHelper.CallerHasAllClipboardPermission() )
-            {
-                return false;
-            }
-
             ret = PrivateCanPaste();
 
             return ret;
@@ -2126,21 +2114,9 @@ namespace System.Windows.Controls
         /// UserInitiatedCanPaste
         /// </summary>
         /// <returns></returns>
-        /// <SecurityNote>
-        ///     Critical -      Elevates the AllClipboard permission for checking the supported data in InkCanvas.
-        /// </SecurityNote>
-        [SecurityCritical]
         private bool UserInitiatedCanPaste()
         {
-            ( new UIPermission(UIPermissionClipboard.AllClipboard) ).Assert();//BlessedAssert
-            try
-            {
-                return PrivateCanPaste();
-            }
-            finally
-            {
-                UIPermission.RevertAssert();
-            }
+            return PrivateCanPaste();
         }
 
         /// <summary>
@@ -2227,25 +2203,10 @@ namespace System.Windows.Controls
         /// Copies the InkCanvas contents to a DataObject and returns it to the caller.
         ///  Can return NULL for DataObject.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: Clipboard.SetDataObject will invoke DataObject.DataStore.GetFormats.
-        ///                 The methods demands SerializationPermission. We perform the elevation before
-        ///                 calling SetDataObject.
-        ///     TreatAsSafe: There is no input here. The ISF data are safe to being put in the clipboard.
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private InkCanvasClipboardDataFormats CopyToDataObject()
         {
              DataObject dataObj;
-            (new UIPermission(UIPermissionClipboard.AllClipboard)).Assert();//BlessedAssert
-            try
-            {
-                dataObj = new DataObject();
-            }
-            finally
-            {
-                UIPermission.RevertAssert();
-            }
+            dataObj = new DataObject();
             InkCanvasClipboardDataFormats copiedDataFormats = InkCanvasClipboardDataFormats.None;
 
             // Try to copy the data from the InkCanvas to the clipboard.
@@ -2253,19 +2214,8 @@ namespace System.Windows.Controls
 
             if ( copiedDataFormats != InkCanvasClipboardDataFormats.None )
             {
-                PermissionSet ps = new PermissionSet(PermissionState.None);
-                ps.AddPermission(new SecurityPermission(SecurityPermissionFlag.SerializationFormatter));
-                ps.AddPermission(new UIPermission(UIPermissionClipboard.AllClipboard));
-                ps.Assert(); // BlessedAssert
-                try
-                {
-                    // Put our data object into the clipboard.
-                    Clipboard.SetDataObject(dataObj, true);
-                }
-                finally
-                {
-                    SecurityPermission.RevertAssert();
-                }
+                // Put our data object into the clipboard.
+                Clipboard.SetDataObject(dataObj, true);
             }
 
             return copiedDataFormats;
@@ -2569,38 +2519,24 @@ namespace System.Windows.Controls
         /// <summary>
         /// Register the commanding handlers for the clipboard operations
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: Elevates to associate a protected command (paste) with keyboard
-        ///     TreatAsSafe: We don't take user input here. Shift+Insert is the correct key binding,
-        ///                  and therefore is expected by the user.
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private static void _RegisterClipboardHandlers()
         {
             Type ownerType = typeof(InkCanvas);
 
             CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands.Cut,
                 new ExecutedRoutedEventHandler(_OnCommandExecuted), new CanExecuteRoutedEventHandler(_OnQueryCommandEnabled),
-                SRID.KeyShiftDelete, SRID.KeyShiftDeleteDisplayString);
+                KeyGesture.CreateFromResourceStrings(KeyShiftDelete, SRID.KeyShiftDeleteDisplayString));
             CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands.Copy,
                 new ExecutedRoutedEventHandler(_OnCommandExecuted), new CanExecuteRoutedEventHandler(_OnQueryCommandEnabled),
-                SRID.KeyCtrlInsert, SRID.KeyCtrlInsertDisplayString);
+                KeyGesture.CreateFromResourceStrings(KeyCtrlInsert, SRID.KeyCtrlInsertDisplayString));
 
             // Use temp variables to reduce code under elevation
             ExecutedRoutedEventHandler pasteExecuteEventHandler = new ExecutedRoutedEventHandler(_OnCommandExecuted);
             CanExecuteRoutedEventHandler pasteQueryEnabledEventHandler = new CanExecuteRoutedEventHandler(_OnQueryCommandEnabled);
-            InputGesture pasteInputGesture = KeyGesture.CreateFromResourceStrings(SR.Get(SRID.KeyShiftInsert), SR.Get(SRID.KeyShiftInsertDisplayString));
+            InputGesture pasteInputGesture = KeyGesture.CreateFromResourceStrings(KeyShiftInsert, SR.Get(SRID.KeyShiftInsertDisplayString));
 
-            new UIPermission(UIPermissionClipboard.AllClipboard).Assert(); // BlessedAssert:
-            try
-            {
-                CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands.Paste,
-                    pasteExecuteEventHandler, pasteQueryEnabledEventHandler, pasteInputGesture);
-            }
-            finally
-            {
-                CodeAccessPermission.RevertAssert();
-            }
+            CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands.Paste,
+                pasteExecuteEventHandler, pasteQueryEnabledEventHandler, pasteInputGesture);
         }
 
         /// <summary>
@@ -2891,12 +2827,6 @@ namespace System.Windows.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        /// <SecurityNote>
-        ///     Critical -      Call into UserInitiatedCanPaste which is SecurityCritical.
-        ///     TreatAsSafe -   We check whether QueryCanPaste is initiated by user or not
-        ///                     before invoking the critical method.
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         private static void _OnQueryCommandEnabled(object sender, CanExecuteRoutedEventArgs args)
         {
             RoutedCommand command = (RoutedCommand)(args.Command);
@@ -3236,6 +3166,11 @@ namespace System.Windows.Controls
         private RTIHighContrastCallback     _rtiHighContrastCallback;
 
         private const double                    c_pasteDefaultLocation = 0.0;
+
+        private const string InkCanvasDeselectKey   = "Esc";
+        private const string KeyCtrlInsert = "Ctrl+Insert";
+        private const string KeyShiftInsert = "Shift+Insert";
+        private const string KeyShiftDelete = "Shift+Delete";
 
         #endregion Private Members
     }

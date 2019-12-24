@@ -7,7 +7,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Security;                       // CAS
-using System.Security.Permissions;           // Registry permissions
 using System.Runtime.ConstrainedExecution;
 using System.Windows;                        // BaseCompatibilityPreferences
 
@@ -90,11 +89,6 @@ namespace System.Windows.Threading
         /// <summary>
         ///     Wait for a set of handles.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical - Calls WaitForMultipleObjectsEx which has a SUC.
-        /// </SecurityNote>
-        [SecurityCritical]
-        [SecurityPermissionAttribute(SecurityAction.LinkDemand, Flags=SecurityPermissionFlag.ControlPolicy|SecurityPermissionFlag.ControlEvidence)]
         [PrePrepareMethod]
         public override int Wait(IntPtr[] waitHandles, bool waitAll, int millisecondsTimeout)
         {

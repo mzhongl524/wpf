@@ -8,7 +8,6 @@ using System.Windows.Threading;
 using System.Threading;
 using System.Windows;
 using System.Security;
-using System.Security.Permissions;
 using MS.Win32;
 using MS.Internal;
 using MS.Internal.PresentationCore;                        // SecurityHelper
@@ -41,19 +40,8 @@ namespace System.Windows.Input
         /// <summary>
         ///     Return the input manager associated with the current context.
         /// </summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(PermissionState.Unrestricted) to call this API.
-        /// </remarks>
-        /// <SecurityNote>
-        ///     Critical: This class is not ok to expose since SEE apps
-        ///               should not have to deal with this directly and
-        ///               it exposes methods that can be use for input spoofing
-        ///
-        /// </SecurityNote>
         public static InputManager Current
         {
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             get
             {
                 return GetCurrentInputManagerImpl();
@@ -65,15 +53,8 @@ namespace System.Windows.Input
         ///     Critical but not TAS - for internal's to use.
         ///     Only exists for perf. The link demand check was causing perf in some XAF scenarios.
         ///</summary>
-        /// <SecurityNote>
-        ///     Critical: This class is not ok to expose since SEE apps
-        ///               should not have to deal with this directly and
-        ///               it exposes methods that can be use for input spoofing
-        ///
-        /// </SecurityNote>
         internal static InputManager UnsecureCurrent
         {
-            [SecurityCritical]
             [FriendAccessAllowed]
             get
             {
@@ -148,12 +129,6 @@ namespace System.Windows.Input
         ///<summary>
         ///     Implementation of InputManager.Current
         ///</summary>
-        /// <SecurityNote>
-        ///     Critical: This class is not ok to expose since SEE apps
-        ///               should not have to deal with this directly and
-        ///               it exposes methods that can be use for input spoofing
-        /// </SecurityNote>
-        [SecurityCritical]
         private static InputManager GetCurrentInputManagerImpl()
         {
             InputManager inputManager = null;
@@ -170,11 +145,6 @@ namespace System.Windows.Input
             return inputManager;
         }
 
-        /// <SecurityNote>
-        ///     Critical: This code causes critical data (inputmanager to be instantiated)
-        ///     This class should not be exposed in the SEE as it can be used for input spoofing.
-        /// </SecurityNote>
-        [SecurityCritical]
         private InputManager()
         {
             // STA Requirement
@@ -207,99 +177,47 @@ namespace System.Windows.Input
             _inputTimer.Interval = TimeSpan.FromMilliseconds(125);
         }
 
-        /// <summary></summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(PermissionState.Unrestricted) to call this API.
-        /// </remarks>
-        /// <SecurityNote>
-        ///     Critical: This event lets people subscribe to all events in the system
-        ///     PublicOk: Method is link demanded.
-        /// </SecurityNote>
         public event PreProcessInputEventHandler PreProcessInput
         {
-            [SecurityCritical ]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             add
             {
                 _preProcessInput += value;
             }
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             remove
             {
                 _preProcessInput -= value;
             }
         }
 
-
-        /// <summary></summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(PermissionState.Unrestricted) to call this API.
-        /// </remarks>
-        /// <SecurityNote>
-        ///     Critical: This event lets people subscribe to all events in the system
-        ///     Not safe to expose.
-        ///     PublicOk: Method is link demanded.
-        /// </SecurityNote>
         public event NotifyInputEventHandler PreNotifyInput
         {
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             add
             {
                 _preNotifyInput += value;
             }
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             remove
             {
                 _preNotifyInput -= value;
             }
 }
-        /// <summary></summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(PermissionState.Unrestricted) to call this API.
-        /// </remarks>
-        /// <SecurityNote>
-        ///     Critical: This event lets people subscribe to all events in the system
-        ///     Not safe to expose.
-        ///     PublicOk: Method is link demanded.
-        /// </SecurityNote>
         public event NotifyInputEventHandler PostNotifyInput
         {
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             add
             {
                 _postNotifyInput += value;
             }
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             remove
             {
                 _postNotifyInput -= value;
 }
         }
 
-        /// <summary></summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(PermissionState.Unrestricted) to call this API.
-        /// </remarks>
-        /// <SecurityNote>
-        ///     Critical: This event lets people subscribe to all events in the system
-        ///     Not safe to expose.
-        ///     PublicOk: Method is link demanded.
-        /// </SecurityNote>
         public event ProcessInputEventHandler PostProcessInput
         {
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             add
             {
                 _postProcessInput += value;
             }
-            [SecurityCritical]
-            [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
             remove
             {
                 _postProcessInput -= value;
@@ -311,19 +229,14 @@ namespace System.Windows.Input
         /// on descendent HwndSource instances. The only subscriber to this event
         /// is KeyboardNavigation.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: This event lets people subscribe to all input notifications
-        /// </SecurityNote>
         internal event KeyEventHandler TranslateAccelerator
         {
             [FriendAccessAllowed] // Used by KeyboardNavigation.cs in Framework
-            [SecurityCritical]
             add
             {
                 _translateAccelerator += value;
             }
             [FriendAccessAllowed] // Used by KeyboardNavigation.cs in Framework
-            [SecurityCritical]
             remove
             {
                 _translateAccelerator -= value;
@@ -333,10 +246,6 @@ namespace System.Windows.Input
         /// <summary>
         /// Raises the TranslateAccelerator event
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: Accesses critical _translateAccelerator.
-        /// </SecurityNote>
-        [SecurityCritical]
         internal void RaiseTranslateAccelerator(KeyEventArgs e)
         {
             if (_translateAccelerator != null)
@@ -351,15 +260,8 @@ namespace System.Windows.Input
         /// <param name="inputProvider">
         ///     The input provider to register.
         /// </param>
-        /// <SecurityNote>
-        ///     This class will not be available in internet zone.
-        ///     Critical: This code acceses and stores critical data (InputProvider)
-        ///     TreatAsSafe: This code demands UIPermission.
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal InputProviderSite RegisterInputProvider(IInputProvider inputProvider)
         {
-            SecurityHelper.DemandUnrestrictedUIPermission();
 //             VerifyAccess();
 
 
@@ -370,11 +272,6 @@ namespace System.Windows.Input
             return site;
         }
 
-        /// <SecurityNote>
-        ///     This class will not be available in internet zone.
-        ///     Critical: This code acceses critical data in the form of InputProvider
-        /// </SecurityNote>
-        [SecurityCritical]
         internal void UnregisterInputProvider(IInputProvider inputProvider)
         {
             _inputProviders.Remove(inputProvider);
@@ -383,21 +280,10 @@ namespace System.Windows.Input
         /// <summary>
         ///     Returns a collection of input providers registered with the input manager.
         /// </summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(PermissionState.Unrestricted) to call this API.
-        /// </remarks>
-        /// <SecurityNote>
-        ///     This class will not be available in internet zone.
-        ///     Critical: This code exposes InputProviders which are
-        ///               considered as critical data
-        ///     PublicOK: This code has a demand on it
-        /// </SecurityNote>
         public ICollection InputProviders
         {
-            [SecurityCritical]
             get
             {
-                SecurityHelper.DemandUnrestrictedUIPermission();
                 return UnsecureInputProviders;
             }
         }
@@ -406,14 +292,8 @@ namespace System.Windows.Input
         /// <summary>
         ///     Returns a collection of input providers registered with the input manager.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: This code exposes InputProviders which are considered as critical data
-        ///     This overload exists for perf. improvements in the internet zone since this function is called
-        ///     quite often
-        /// </SecurityNote>
         internal ICollection UnsecureInputProviders
         {
-            [SecurityCritical]
             get
             {
                 return _inputProviders.Keys;
@@ -443,12 +323,8 @@ namespace System.Windows.Input
         /// <see href="https://msdn.microsoft.com/library/dd901337(v=vs.90).aspx">here</see>.
         /// Once this is no longer officially supported, this can be removed.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical, accesses critical member StylusLogic.CurrentStylusLogic
-        /// </SecurityNote>
         internal StylusLogic StylusLogic
         {
-            [SecurityCritical, FriendAccessAllowed]
             get { return StylusLogic.CurrentStylusLogic; }
         }
 
@@ -599,12 +475,6 @@ namespace System.Windows.Input
         }
 
 
-        ///<SecurityNote>
-        ///     Critical - calls UnsecureCurrent
-        ///     TreatAsSafe - notifying the input manager that hit test information needs to be recalced.
-        ///                   is considered safe ( and currently this code is transparent).
-        ///</SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal static void SafeCurrentNotifyHitTestInvalidated()
         {
             UnsecureCurrent.NotifyHitTestInvalidated();
@@ -675,18 +545,11 @@ namespace System.Windows.Input
         ///     The specified input is processed by all of the filters and
         ///     monitors, and is finally dispatched to the appropriate
         ///     element as an input event.
-        ///     Callers must have UIPermission(PermissionState.Unrestricted) to call this API.
         /// </remarks>
         /// <returns>
         ///     Whether or not any event generated as a consequence of this
         ///     event was handled.
         /// </returns>
-        /// <SecurityNote>
-        ///     Critical: This code can cause input to be processed.
-        ///     PublicOK: This code link demands.
-        /// </SecurityNote>
-        [SecurityCritical]
-        [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted=true)]
         public bool ProcessInput(InputEventArgs input)
         {
 //             VerifyAccess();
@@ -713,20 +576,12 @@ namespace System.Windows.Input
             return handled;
         }
 
-        ///<SecurityNote>
-        /// Critical - accesses critical data ( _stagingArea)
-        ///</SecurityNote>
-        [SecurityCritical]
         internal StagingAreaInputItem PushInput(StagingAreaInputItem inputItem)
         {
             _stagingArea.Push(inputItem);
             return inputItem;
         }
 
-        ///<SecurityNote>
-        /// Critical - accesses critical function ( PushInput)
-        ///</SecurityNote>
-        [SecurityCritical]
         internal StagingAreaInputItem PushInput(InputEventArgs input, StagingAreaInputItem promote)
         {
             StagingAreaInputItem item = new StagingAreaInputItem(false);
@@ -735,10 +590,6 @@ namespace System.Windows.Input
             return PushInput(item);
         }
 
-        ///<SecurityNote>
-        /// Critical - calls a critical function ( PushInput).
-        ///</SecurityNote>
-        [SecurityCritical]
         internal StagingAreaInputItem PushMarker()
         {
             StagingAreaInputItem item = new StagingAreaInputItem(true);
@@ -746,10 +597,6 @@ namespace System.Windows.Input
             return PushInput(item);
         }
 
-        ///<SecurityNote>
-        /// Critical - accesses critical data _stagingArea.
-        ///</SecurityNote>
-        [SecurityCritical]
         internal StagingAreaInputItem PopInput()
         {
             object input = null;
@@ -763,10 +610,6 @@ namespace System.Windows.Input
         }
 
 
-        ///<SecurityNote>
-        /// Critical - accesses the _stagingArea critical data.
-        ///</SecurityNote>
-        [SecurityCritical]
         internal StagingAreaInputItem PeekInput()
         {
             object input = null;
@@ -779,10 +622,6 @@ namespace System.Windows.Input
             return input as StagingAreaInputItem;
         }
 
-        ///<SecurityNote>
-        /// Critical - accesses critical data ( _stagingArea.Count) and calls a critical function - ProcessStagingArea
-        ///</SecurityNote>
-        [SecurityCritical ]
         internal object ContinueProcessingStagingArea(object unused)
         {
             _continueProcessingStagingArea = false;
@@ -846,10 +685,6 @@ namespace System.Windows.Input
         }
 
 
-        ///<SecurityNote>
-        /// Critical: accesses critical data ( PopInput()) and raises events with the user-initiated flag
-        ///</SecurityNote>
-        [SecurityCritical]
         private bool ProcessStagingArea()
         {
             bool handled = false;
@@ -1101,11 +936,6 @@ namespace System.Windows.Input
             return handled;
         }
 
-        ///<SecurityNote>
-        ///  Critical - sets the MarkAsUserInitiated bit.
-        ///</SecurityNote>
-        [SecurityCritical]
-        [MS.Internal.Permissions.UserInitiatedRoutedEventPermissionAttribute(SecurityAction.Assert)]
         private void RaiseProcessInputEventHandlers(ProcessInputEventHandler postProcessInput, ProcessInputEventArgs processInputEventArgs)
         {
             processInputEventArgs.StagingItem.Input.MarkAsUserInitiated();
@@ -1145,40 +975,16 @@ namespace System.Windows.Input
         private PreProcessInputEventArgs _preProcessInputEventArgs;
 
         //these four events introduced for secutiy purposes
-        /// <SecurityNote>
-        ///     Critical: This code can be used to spoof input considered critical
-        /// </SecurityNote>
-        [method: SecurityCritical]
         private event PreProcessInputEventHandler _preProcessInput;
 
-        /// <SecurityNote>
-        ///     Critical: This code can be used to spoof input considered critical
-        /// </SecurityNote>
-        [method: SecurityCritical]
         private event NotifyInputEventHandler _preNotifyInput;
 
-        /// <SecurityNote>
-        ///     Critical: This code can be used to spoof input considered critical
-        /// </SecurityNote>
-        [method: SecurityCritical]
         private event NotifyInputEventHandler _postNotifyInput;
 
-        /// <SecurityNote>
-        ///     Critical: This code can be used to spoof input considered critical
-        /// </SecurityNote>
-        [method: SecurityCritical]
         private event ProcessInputEventHandler _postProcessInput;
 
-        /// <SecurityNote>
-        ///     Critical: This code can be used to spoof input considered critical
-        /// </SecurityNote>
-        [method: SecurityCritical]
         private event KeyEventHandler _translateAccelerator;
 
-        /// <SecurityNote>
-        ///     This table holds critical data not ok to expose
-        /// </SecurityNote>
-        [SecurityCritical]
         private Hashtable _inputProviders = new Hashtable();
 
         private KeyboardDevice _primaryKeyboardDevice;
@@ -1191,11 +997,6 @@ namespace System.Windows.Input
         private DispatcherOperation _hitTestInvalidatedAsyncOperation;
         private EventHandler _layoutUpdatedCallback;
 
-        /// <SecurityNote>
-        ///     Critical: This stack holds all the input events and can be used
-        ///     to spoof or force arbitrary input
-        /// </SecurityNote>
-        [SecurityCritical]
         private Stack _stagingArea;
 
         private InputDevice _mostRecentInputDevice;

@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Automation;
 using System.Windows.Automation.Peers;
 using System.Windows.Input;
@@ -38,12 +37,6 @@ namespace System.Windows
         /// <summary>
         ///     Static Constructor for ContentElement
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: This hooks up a bunch of thunks which are all critical since they
-        ///     can be used to spoof input
-        ///     TreatAsSafe: Since it does not expose the thunks
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         static ContentElement()
         {
             UIElement.RegisterEvents(typeof(ContentElement));

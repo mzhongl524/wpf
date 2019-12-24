@@ -13,7 +13,6 @@ using System.Reflection;
 using System.Xml;
 using System.IO;
 using System.Security;
-using System.Security.Permissions;
 using System.ComponentModel.Design.Serialization;
 using System.Windows.Xps.Packaging;
 using System.Windows.Documents;
@@ -679,10 +678,6 @@ namespace System.Windows.Xps.Serialization
         ///
         /// </summary>
         ///
-        /// <SecurityNote>
-        /// Critical   : Calls MetroToGdiConverter.StartDocument which is critical because it returns the print job id
-        /// </SecurityNote>
-        [SecurityCritical]
         internal
         void
         StartDocument(

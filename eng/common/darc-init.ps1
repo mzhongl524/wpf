@@ -1,9 +1,10 @@
 param (
     $darcVersion = $null,
-    $versionEndpoint = "https://maestro-prod.westus2.cloudapp.azure.com/api/assets/darc-version?api-version=2019-01-16"
+    $versionEndpoint = "https://maestro-prod.westus2.cloudapp.azure.com/api/assets/darc-version?api-version=2019-01-16",
+    $verbosity = "m",
+    $toolpath = $null
 )
 
-$verbosity = "m"
 . $PSScriptRoot\tools.ps1
 
 function InstallDarcCli ($darcVersion) {
@@ -11,10 +12,10 @@ function InstallDarcCli ($darcVersion) {
 
   $dotnetRoot = InitializeDotNetCli -install:$true
   $dotnet = "$dotnetRoot\dotnet.exe"
-  $toolList = Invoke-Expression "& `"$dotnet`" tool list -g"
+  $toolList = & "$dotnet" tool list -g
 
   if ($toolList -like "*$darcCliPackageName*") {
-    Invoke-Expression "& `"$dotnet`" tool uninstall $darcCliPackageName -g"
+    & "$dotnet" tool uninstall $darcCliPackageName -g
   }
 
   # If the user didn't explicitly specify the darc version,
@@ -22,12 +23,16 @@ function InstallDarcCli ($darcVersion) {
   if (-not $darcVersion) {
     $darcVersion = $(Invoke-WebRequest -Uri $versionEndpoint -UseBasicParsing).Content
   }
-  
-  $arcadeServicesSource = 'https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json'
+
+  $arcadeServicesSource = 'https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json'
 
   Write-Host "Installing Darc CLI version $darcVersion..."
   Write-Host "You may need to restart your command window if this is the first dotnet tool you have installed."
-  Invoke-Expression "& `"$dotnet`" tool install $darcCliPackageName --version $darcVersion --add-source '$arcadeServicesSource' -v $verbosity -g"
+  if (-not $toolpath) {
+    & "$dotnet" tool install $darcCliPackageName --version $darcVersion --add-source "$arcadeServicesSource" -v $verbosity -g
+  }else {
+    & "$dotnet" tool install $darcCliPackageName --version $darcVersion --add-source "$arcadeServicesSource" -v $verbosity --tool-path "$toolpath"    
+  }
 }
 
 InstallDarcCli $darcVersion

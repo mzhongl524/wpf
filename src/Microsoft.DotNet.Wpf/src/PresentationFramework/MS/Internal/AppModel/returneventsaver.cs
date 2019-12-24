@@ -22,7 +22,6 @@ using System.Diagnostics;
 using System.Collections;
 using System.Reflection;
 using System.IO;
-using System.Security.Permissions;
 using System.Security;
 
 namespace MS.Internal.AppModel
@@ -52,11 +51,6 @@ namespace MS.Internal.AppModel
         }
 
 
-        /// <SecurityNote>
-        /// Critical - sets the critical _returnList.
-        /// TreatAsSafe - _returnList is not exposed in any way.
-        /// </SecurityNote> 
-        [SecurityCritical, SecurityTreatAsSafe]
         internal void _Detach(PageFunctionBase pf)
         {
             if (pf._Return != null && pf._Saver == null)
@@ -109,15 +103,6 @@ namespace MS.Internal.AppModel
         //
         // child   - the child PageFunction. Caller was originally attached to child, we're now reattaching *to* the child
         //
-        /// <SecurityNote>
-        /// Critical - Asserts ReflectionPermission to be able re-create delegate to private method.
-        /// TreatAsSafe - The delegate created is identical to the one that _Detach() received from
-        ///     the application and saved. This is ensured by matching the type of the original target
-        ///     object against the type of the new target. Thus we know that the application was able
-        ///     to create a delegate over the exact method, and even if that method had a LinkDemand,
-        ///     it was satisfied by the application.
-        /// </SecurityNote> 
-        [SecurityCritical, SecurityTreatAsSafe]
         internal void _Attach(Object caller, PageFunctionBase child)
         {
             ReturnEventSaverInfo[] list = null;
@@ -142,8 +127,6 @@ namespace MS.Internal.AppModel
                     Delegate d;
                     try
                     {
-                        new ReflectionPermission(ReflectionPermissionFlag.MemberAccess).Assert(); // BlessedAssert
-
                         d = Delegate.CreateDelegate(
                                                                 Type.GetType(_returnList[i]._delegateTypeName),
                                                                 caller,
@@ -153,20 +136,12 @@ namespace MS.Internal.AppModel
                     {
                         throw new NotSupportedException(SR.Get(SRID.ReturnEventHandlerMustBeOnParentPage), ex);
                     }
-                    finally
-                    {
-                        ReflectionPermission.RevertAssert();
-                    }
 
                     child._AddEventHandler(d);
                 }
             }
         }
 
-        /// <SecurityNote>
-        /// Critical: contains metadata for delegates created under elevation.
-        /// </SecurityNote> 
-        [SecurityCritical]
         private ReturnEventSaverInfo[] _returnList;     // The list of delegates we want to persist and return later 
     }
 }

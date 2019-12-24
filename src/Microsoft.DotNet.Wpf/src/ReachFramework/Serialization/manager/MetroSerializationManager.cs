@@ -21,7 +21,6 @@ using System.Reflection;
 using System.Xml;
 using System.IO;
 using System.Security;
-using System.Security.Permissions;
 using System.ComponentModel.Design.Serialization;
 using System.Windows.Xps.Packaging;
 using System.Windows.Documents;
@@ -50,10 +49,6 @@ namespace System.Windows.Xps.Serialization
         /// Constructor to create and initialize the base 
         /// PackageSerializationManager class.
         /// </summary>
-        /// <SecurityNote>
-        /// Critical -  creates a ContextStack which is link critical
-        /// </SecurityNote>
-        [SecurityCritical]
         protected 
         PackageSerializationManager(
             )
@@ -343,20 +338,15 @@ namespace System.Windows.Xps.Serialization
         /// Queries or Sets the StackContext that hosts all
         /// the nodes within the graph of the serialized object
         /// </summary>
-        /// <SecurityNote>
-        /// Critical -  Returns a ContextStack which is link critical
-        /// </SecurityNote>
         internal
         ContextStack
         GraphContextStack
         {
-            [SecurityCritical]
             get
             {
                 return _graphContextStack;
             }
 
-            [SecurityCritical]
             set
             {
                 _graphContextStack = value;
@@ -422,26 +412,15 @@ namespace System.Windows.Xps.Serialization
             }
         }
 
-        /// <SecurityNote>
-        /// Critical -  job identifier is something we should be carefull giving out in PT
-        /// </SecurityNote>
         internal
         int
         JobIdentifier
-        {
-            [System.Drawing.Printing.PrintingPermission(
-             System.Security.Permissions.SecurityAction.Demand,
-             Level = System.Drawing.Printing.PrintingPermissionLevel.DefaultPrinting)]                    
-            [SecurityCritical]
+        {                
             set
             {
                 _jobIdentifier = value;
             }
-
-            [System.Drawing.Printing.PrintingPermission(
-             System.Security.Permissions.SecurityAction.Demand,
-             Level = System.Drawing.Printing.PrintingPermissionLevel.DefaultPrinting)]                    
-            [SecurityCritical]
+                    
             get
             {
                 return _jobIdentifier;
@@ -455,11 +434,6 @@ namespace System.Windows.Xps.Serialization
         private
         SerializersCacheManager     _serializersCacheManager;
 
-        /// <SecurityNote>
-        /// Critical -  ContextStack is link critical
-        /// This is private no one should be accessing this directly
-        /// </SecurityNote>
-        [SecurityCritical]
         private
         ContextStack                _graphContextStack;
 
@@ -469,10 +443,6 @@ namespace System.Windows.Xps.Serialization
         private
         XmlLanguage                 _language;
 
-        /// <SecurityNote>
-        /// Critical -  job identifier is something we should be carefull giving out in PT
-        /// </SecurityNote>
-        [SecurityCritical]
         private 
         int                         _jobIdentifier;
 
@@ -1113,11 +1083,6 @@ namespace System.Windows.Xps.Serialization
             return canSerializeValue;
         }
 
-        /// <SecurityNote>
-        ///    Critical - Asserts unrestricted permission to call critical Activator.CreateInstance
-        /// <SecurityNote>
-        [SecurityCritical]
-        [PermissionSet(SecurityAction.Assert, Unrestricted = true)]
         private 
         ReachSerializer
         CreateReachSerializer(Type serializerType)

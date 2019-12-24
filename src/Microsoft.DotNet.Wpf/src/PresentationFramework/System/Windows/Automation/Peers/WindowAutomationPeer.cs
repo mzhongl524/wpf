@@ -5,7 +5,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Security.Permissions;
 using System.Text;
 using System.Windows;
 using System.Windows.Interop;
@@ -35,11 +34,6 @@ namespace System.Windows.Automation.Peers
         }
 
         ///
-        /// <SecurityNote>
-        ///     Critical: As this accesses Handle
-        ///     TreatAsSafe: Returning the Window Title is considered safe - discussed on Automation TA review
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         override protected string GetNameCore()
         {
             string name = base.GetNameCore();
@@ -71,11 +65,6 @@ namespace System.Windows.Automation.Peers
 
 
         ///
-        ///<SecurityNote>
-        ///     Critical as this method accesses critical data.
-        ///     TreatAsSafe - window bounds by themselves is considered safe.
-        ///</SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe ]
         override protected Rect GetBoundingRectangleCore()
         {
             Window window = (Window)Owner;

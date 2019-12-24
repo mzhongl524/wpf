@@ -15,7 +15,6 @@ using System.Reflection;
 using MS.Internal;
 using MS.Win32.PresentationCore;
 using System.Security;
-using System.Security.Permissions;
 using System.Diagnostics;
 using System.Windows.Media;
 using System.Globalization;
@@ -33,11 +32,6 @@ namespace System.Windows.Media.Imaging
 {
     internal sealed class UnmanagedBitmapWrapper : BitmapSource
     {
-        /// <SecurityNote>
-        /// Critical - calls critical code method BitmapSource.UpdateCachedSettings
-        /// TreatAsSafe - all inputs are checked
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         public UnmanagedBitmapWrapper(BitmapSourceSafeMILHandle bitmapSource) :
             base(true)
         {            
@@ -55,11 +49,6 @@ namespace System.Windows.Media.Imaging
 
         #region Protected Methods
 
-        /// <SecurityNote>
-        /// Critical - eventually access'es critical resources (_wicSource)
-        /// TreatAsSafe - all inputs are checked
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal UnmanagedBitmapWrapper(bool initialize) :
             base(true)        
         {       

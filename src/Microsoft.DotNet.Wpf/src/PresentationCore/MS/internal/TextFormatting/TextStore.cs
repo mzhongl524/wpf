@@ -23,7 +23,6 @@ using System.Runtime.InteropServices;
 using MS.Internal.Shaping;
 using MS.Internal.Generic;
 using System.Security;
-using System.Security.Permissions;
 using SR=MS.Internal.PresentationCore.SR;
 using SRID=MS.Internal.PresentationCore.SRID;
 
@@ -614,11 +613,6 @@ namespace MS.Internal.TextFormatting
         /// <summary>
         /// Create special run that matches the content of specified text run
         /// </summary>
-        /// <SecurityNote>
-        ///    Critical: This code has unsafe code block that uses pointers.
-        ///    TreatAsSafe: This code does not expose the pointer and the call does bounds checking.
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         private TextRunInfo CreateSpecialRunFromTextContent(
             TextRunInfo     runInfo,
             int             cchFetched

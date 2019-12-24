@@ -15,7 +15,6 @@ using System.Collections;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Permissions;
 using System.Text;
 using System.Windows.Automation;
 using System.Windows.Automation.Provider;
@@ -986,7 +985,6 @@ namespace MS.Internal.AutomationProxies
             }
         }
 
-        [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
         internal static int MsgWaitForMultipleObjects(SafeWaitHandle handle, bool waitAll, int milliseconds, int wakeMask)
         {
             int terminationEvent, lastWin32Error;

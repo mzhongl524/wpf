@@ -1,28 +1,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
   <PropertyGroup>
-
-    <_PresentationBuildTasksTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp2.1</_PresentationBuildTasksTfm>
-    <_PresentationBuildTasksTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net472</_PresentationBuildTasksTfm>
-    <_PresentationBuildTasksAssembly Condition="'$(_PresentationBuildTasksAssembly)'==''">$(MSBuildThisFileDirectory)..\tools\$(_PresentationBuildTasksTfm)\PresentationBuildTasks.dll</_PresentationBuildTasksAssembly>
-
     <AlwaysCompileMarkupFilesInSeparateDomain Condition="'$(BuildingInsideVisualStudio)' == 'true' and '$(AlwaysCompileMarkupFilesInSeparateDomain)' == ''">true</AlwaysCompileMarkupFilesInSeparateDomain>
-
     <AlwaysCompileMarkupFilesInSeparateDomain Condition="'$(AlwaysCompileMarkupFilesInSeparateDomain)' == '' ">true</AlwaysCompileMarkupFilesInSeparateDomain>
-
     <LocalizationDirectivesToLocFile Condition="'$(LocalizationDirectivesToLocFile)' == ''">None</LocalizationDirectivesToLocFile>
-
   </PropertyGroup>
-
-  <UsingTask TaskName="Microsoft.Build.Tasks.Windows.MarkupCompilePass1" AssemblyFile="$(_PresentationBuildTasksAssembly)" />
-  <UsingTask TaskName="Microsoft.Build.Tasks.Windows.UidManager" AssemblyFile="$(_PresentationBuildTasksAssembly)" />
-  <UsingTask TaskName="Microsoft.Build.Tasks.Windows.ResourcesGenerator" AssemblyFile="$(_PresentationBuildTasksAssembly)" />
-  <UsingTask TaskName="Microsoft.Build.Tasks.Windows.FileClassifier" AssemblyFile="$(_PresentationBuildTasksAssembly)" />
-  <UsingTask TaskName="Microsoft.Build.Tasks.Windows.MarkupCompilePass2" AssemblyFile="$(_PresentationBuildTasksAssembly)" />
-  <UsingTask TaskName="Microsoft.Build.Tasks.Windows.GenerateTemporaryTargetAssembly" AssemblyFile="$(_PresentationBuildTasksAssembly)" />
-  <UsingTask TaskName="Microsoft.Build.Tasks.Windows.MergeLocalizationDirectives" AssemblyFile="$(_PresentationBuildTasksAssembly)" />
-
-
+  
   <!-- Some Default Settings -->
   <PropertyGroup>
 
@@ -106,7 +88,7 @@
   <Target Name="DesignTimeMarkupCompilation">
 
         <!-- Only if we are not actually performing a compile i.e. we are in design mode -->
-        <CallTarget Condition="'$(BuildingProject)' != 'true'"
+        <CallTarget Condition="'$(BuildingProject)' != 'true' Or $(DesignTimeBuild) == 'true'"
                 Targets="MarkupCompilePass1" />
   </Target>
 
@@ -573,7 +555,10 @@
   </Target>
 
   <Target Name="SplashScreenValidation" Condition="'@(SplashScreen)' != ''" >
-    <Error Condition="'$(TargetFrameworkVersion)' == 'v3.0'" Text="The SplashScreen Build Action is not supported in the selected Target Framework." />
+    <Error Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' And 
+                      '$(_TargetFrameworkVersionWithoutV)' != ''        And 
+                      '$(_TargetFrameworkVersionWithoutV)' == '3.0'" 
+           Text="The SplashScreen Build Action is not supported on $(TargetFrameworkIdentifier) $(TargetFrameworkVersion)." />
   </Target>
 
 

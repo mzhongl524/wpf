@@ -22,7 +22,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Threading;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Composition;
@@ -233,12 +232,6 @@ namespace System.Windows.Media.Animation
         /// <param name="dp"></param>
         /// <param name="metadata"></param>
         /// <param name="entry">EffectiveValueEntry computed by base</param>
-        /// <SecurityNote>
-        ///     Putting an InheritanceDemand as a defense-in-depth measure,
-        ///     as this provides a hook to the property system that we don't
-        ///     want exposed under PartialTrust.
-        /// </SecurityNote>
-        [UIPermissionAttribute(SecurityAction.InheritanceDemand, Window=UIPermissionWindow.AllWindows)]
         internal sealed override void EvaluateAnimatedValueCore(
                 DependencyProperty  dp,
                 PropertyMetadata    metadata,

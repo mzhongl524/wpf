@@ -19,7 +19,6 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Security;
-using System.Security.Permissions;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Text;
@@ -46,10 +45,6 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         ///
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - Accesses critical resources
-        /// </SecurityNote>
-        [SecurityCritical]
         internal InPlaceBitmapMetadataWriter(
             SafeMILHandle /* IWICFastMetadataEncoder */ fmeHandle,
             SafeMILHandle /* IWICMetadataQueryWriter */ metadataHandle,
@@ -62,11 +57,6 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         ///
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - Accesses unmanaged code
-        /// TreatAsSafe - inputs are verified or safe
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         static internal InPlaceBitmapMetadataWriter CreateFromFrameDecode(BitmapSourceSafeMILHandle frameHandle, object syncObject)
         {
             Invariant.Assert(frameHandle != null);
@@ -95,11 +85,6 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         ///
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - Accesses unmanaged code
-        /// TreatAsSafe - inputs are verified or safe
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         static internal InPlaceBitmapMetadataWriter CreateFromDecoder(SafeMILHandle decoderHandle, object syncObject)
         {
             Invariant.Assert(decoderHandle != null);
@@ -128,11 +113,6 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         ///
         /// </summary>
-        /// <SecurityNote>
-        /// Critical - Accesses unmanaged code
-        /// PublicOK - inputs are verified or safe
-        /// </SecurityNote>
-        [SecurityCritical ]
         public bool TrySave()
         {
             int hr;
@@ -202,10 +182,6 @@ namespace System.Windows.Media.Imaging
         }
         #endregion
 
-        /// <SecurityNote>
-        /// Critical - pointer to an unmanaged object that methods are called on.
-        /// </SecurityNote>
-        [SecurityCritical]
         private SafeMILHandle _fmeHandle;
     }
 

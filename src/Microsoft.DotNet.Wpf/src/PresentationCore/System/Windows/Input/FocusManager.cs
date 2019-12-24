@@ -18,7 +18,6 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Security;
-using System.Security.Permissions;
 using MS.Internal.KnownBoxes;
 
 
@@ -137,11 +136,6 @@ namespace System.Windows.Input
         /// <param name="element"></param>
         /// <param name="validate"></param>
         /// <returns></returns>
-        /// <SecurityNote>
-        ///     Critical: This code accesses PresentationSource.CriticalFromVisual which is critical
-        ///     TreatAsSafe: This code does not expose it and simply uses it for determining if the FocusedElement is valid
-        /// </SecurityNote>
-        [SecurityCritical, SecurityTreatAsSafe]
         internal static IInputElement GetFocusedElement(DependencyObject element, bool validate)
         {
             if (element == null)

@@ -285,11 +285,6 @@ namespace MS.Internal.IO.Packaging.CompoundFile
 
 #if !PBTCOMPILER
 
-        /// <SecurityNote>
-        ///  Critical : Calls critical Marshal.SizeOf
-        ///  Safe     : Calls method with trusted input (well known safe type)
-        /// </SecurityNote>
-        [SecuritySafeCritical]
 #endif        
         private static int SizeOfInt16()
         {
@@ -298,11 +293,6 @@ namespace MS.Internal.IO.Packaging.CompoundFile
         
 #if !PBTCOMPILER
 
-        /// <SecurityNote>
-        ///  Critical : Calls critical Marshal.SizeOf
-        ///  Safe     : Calls method with trusted input (well known safe type)
-        /// </SecurityNote>
-        [SecuritySafeCritical]
 #endif        
         private static int SizeOfInt32()
         {
@@ -310,11 +300,6 @@ namespace MS.Internal.IO.Packaging.CompoundFile
         }
         
 #if !PBTCOMPILER
-        /// <SecurityNote>
-        ///  Critical : Calls critical Marshal.SizeOf
-        ///  Safe     : Calls method with trusted input (well known safe type)
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         private static int SizeOfInt64()
         {
             return Marshal.SizeOf(typeof(Int64));
@@ -351,7 +336,7 @@ namespace MS.Internal.IO.Packaging.CompoundFile
         {
             // A null string will get a null array
             if ((null == backSlashPath) || (0 == backSlashPath.Length))
-                return new string[0];
+                return Array.Empty<string>();
 
             // Reject leading/trailing whitespace
             if (Char.IsWhiteSpace(backSlashPath[0]) ||

@@ -23,7 +23,6 @@ namespace System.Windows.Documents
     using System.Runtime.InteropServices;
     using System.Runtime.CompilerServices;
     using System.Security;
-    using System.Security.Permissions;
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Windows;
@@ -44,24 +43,8 @@ namespace System.Windows.Documents
         /// <exception cref="NotSupportedException">
         /// The OS platform is supportable, but spellchecking services are currently unavailable
         /// </exception>
-        /// <SecurityNote>
-        /// Critical:
-        ///     Asserts permissions
-        /// Safe:
-        ///     Takes no input, does not give the caller access to any
-        ///     Critical resources directly.
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         internal WinRTSpellerInterop()
         {
-            // When the CLR consumes an unmanaged COM object, it invokes
-            // System.ComponentModel.LicenseManager.LicenseInteropHelper.GetCurrentContextInfo
-            // which in turn calls Assembly.GetName. Assembly.GetName requires FileIOPermission for
-            // access to the path of the assembly.
-            FileIOPermission fiop = new FileIOPermission(PermissionState.None);
-            fiop.AllLocalFiles = FileIOPermissionAccess.PathDiscovery;
-            fiop.Assert();
-
             try
             {
                 SpellCheckerFactory.Create(shouldSuppressCOMExceptions: false);
@@ -72,10 +55,6 @@ namespace System.Windows.Documents
             {
                 Dispose();
                 throw new PlatformNotSupportedException(string.Empty, ex);
-            }
-            finally
-            {
-                CodeAccessPermission.RevertAssert();
             }
 
             _spellCheckers = new Dictionary<CultureInfo, Tuple<WordsSegmenter, SpellChecker>>();
@@ -227,13 +206,6 @@ namespace System.Windows.Documents
         /// Unloads a given custom dictionary
         /// </summary>
         /// <param name="token"></param>
-        /// <SecurityNote>
-        /// Critical -
-        ///     Demands FileIOPermission
-        /// Safe -
-        ///     Does not expose any Critical resources to the caller.
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         internal override void UnloadDictionary(object token)
         {
             if (_isDisposed) return;
@@ -242,19 +214,12 @@ namespace System.Windows.Documents
             string ietfLanguageTag = data.Item1;
             string filePath = data.Item2;
 
-            try
+            using (new SpellerCOMActionTraceLogger(this, SpellerCOMActionTraceLogger.Actions.UnregisterUserDictionary))
             {
-                new FileIOPermission(FileIOPermissionAccess.AllAccess, filePath).Demand();
-                using (new SpellerCOMActionTraceLogger(this, SpellerCOMActionTraceLogger.Actions.UnregisterUserDictionary))
-                {
-                    SpellCheckerFactory.UnregisterUserDictionary(filePath, ietfLanguageTag);
-                }
+                SpellCheckerFactory.UnregisterUserDictionary(filePath, ietfLanguageTag);
+            }
 
-                FileHelper.DeleteTemporaryFile(filePath);
-            }
-            catch(SecurityException)
-            {
-            }
+            FileHelper.DeleteTemporaryFile(filePath);
         }
 
         /// <summary>
@@ -274,15 +239,6 @@ namespace System.Windows.Documents
         /// <param name="trustedFolder"></param>
         /// <param name="dictionaryLoadedCallback"></param>
         /// <returns></returns>
-        /// <SecurityNote>
-        /// Critical -
-        ///     Asserts FileIOPermission
-        /// Safe -
-        ///     Does not expose any Critical resources to the caller.
-        ///     The return value from LoadDictionaryImpl is Safe (it is
-        ///     a managed Tuple[T1, T2]
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         internal override object LoadDictionary(Uri item, string trustedFolder)
         {
             if (_isDisposed)
@@ -290,16 +246,7 @@ namespace System.Windows.Documents
                 return null;
             }
 
-            // Assert neccessary security to load trusted files.
-            new FileIOPermission(FileIOPermissionAccess.Read, trustedFolder).Assert();
-            try
-            {
-                return LoadDictionaryImpl(item.LocalPath);
-            }
-            finally
-            {
-                FileIOPermission.RevertAssert();
-            }
+            return LoadDictionaryImpl(item.LocalPath);
         }
 
         /// <summary>
@@ -480,27 +427,11 @@ namespace System.Windows.Documents
         ///     At the end of this method, we guarantee that <paramref name="lexiconFilePath"/>
         ///     can be reclaimed (i.e., potentially deleted) by the caller.
         /// </remarks>
-        /// <SecurityNote>
-        /// Critical -
-        ///     Demands and Asserts permissions
-        /// Safe -
-        ///     Does not expose any Critical resources to the caller.
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         private Tuple<string, string> LoadDictionaryImpl(string lexiconFilePath)
         {
             if (_isDisposed)
             {
                 return new Tuple<string, string>(null, null);
-            }
-
-            try
-            {
-                new FileIOPermission(FileIOPermissionAccess.Read, lexiconFilePath).Demand();
-            }
-            catch (SecurityException se)
-            {
-                throw new ArgumentException(SR.Get(SRID.CustomDictionaryFailedToLoadDictionaryUri, lexiconFilePath), se);
             }
 
             if (!File.Exists(lexiconFilePath))
@@ -553,7 +484,7 @@ namespace System.Windows.Documents
 
                 return new Tuple<string, string>(ietfLanguageTag, lexiconPrivateCopyPath);
             }
-            catch (Exception e) when ((e is SecurityException) || (e is ArgumentException) || !fileCopied)
+            catch (Exception e) when ((e is ArgumentException) || !fileCopied)
             {
                 // IUserDictionariesRegistrar.RegisterUserDictionary can
                 // throw ArgumentException on failure. Cleanup the temp file if
@@ -581,14 +512,7 @@ namespace System.Windows.Documents
         ///     respectively, we ensure that ClearDictionaries is always called in the UI
         ///     thread by invoking it with help from the cached <see cref="Dispatcher"/>
         /// </remarks>
-        /// <SecurityNote>
-        /// Critical -
-        ///     Demands FileIOPermission
-        /// Safe -
-        ///     Does not expose any Critical resources to the caller
-        /// </SecurityNote>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        [SecuritySafeCritical]
         private void ClearDictionaries(bool disposing = false)
         {
             if (_isDisposed)
@@ -605,8 +529,6 @@ namespace System.Windows.Documents
                     foreach (string filePath in items.Value)
                         try
                         {
-                            new FileIOPermission(FileIOPermissionAccess.AllAccess, filePath).Demand();
-
                             using (new SpellerCOMActionTraceLogger(this, SpellerCOMActionTraceLogger.Actions.UnregisterUserDictionary))
                             {
                                 SpellCheckerFactory.UnregisterUserDictionary(filePath, ietfLanguageTag);
@@ -691,15 +613,8 @@ namespace System.Windows.Documents
         /// <see cref = "// See http://www.unicode.org/faq/utf_bom.html" />
         /// <param name="sourcePath"></param>
         /// <param name="targetPath"></param>
-        /// <SecurityNote>
-        /// Critical -
-        ///     Demands FileIOPermission permissions
-        /// </SecurityNote>
-        [SecurityCritical]
         private static void CopyToUnicodeFile(string sourcePath, FileStream targetStream)
         {
-            new FileIOPermission(FileIOPermissionAccess.Read, sourcePath).Demand();
-
             bool utf16LEEncoding = false;
             using (FileStream sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read))
             {
@@ -737,14 +652,6 @@ namespace System.Windows.Documents
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <SecurityNote>
-        /// Critical:
-        ///     Calls ClearDictionaries which is Critical
-        /// Safe:
-        ///     Called by transparent methods, and does not expose any
-        ///     critical resources (COM objects) to callers.
-        /// </SecurityNote>
-        [SecuritySafeCritical]
         private void ProcessUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var disposing = false;

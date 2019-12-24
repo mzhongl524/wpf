@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Security;
-using System.Security.Permissions;
 using System.Security.RightsManagement;
 using SecurityHelper = MS.Internal.WindowsBase.SecurityHelper;
 using System.Globalization;             // For CultureInfo
@@ -28,13 +27,6 @@ using System.Windows;
 
 namespace MS.Internal.Security.RightsManagement
 {
-    /// <SecurityNote>
-    ///     Critical:    This class exposes access to methods that eventually do one or more of the the following
-    ///             1. call into unmanaged code 
-    ///             2. affects state/data that will eventually cross over unmanaged code boundary
-    ///             3. Return some RM related information which is considered private 
-    /// </SecurityNote>
-    [SecurityCritical(SecurityCriticalScope.Everything)]
     internal class IssuanceLicense : IDisposable
     {
         internal IssuanceLicense(

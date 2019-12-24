@@ -4,7 +4,6 @@
 
 using System;
 using System.Security;
-using System.Security.Permissions;
 using MS.Internal;
 using MS.Internal.PresentationCore;                        // SecurityHelper
 using MS.Win32;
@@ -21,10 +20,6 @@ namespace System.Windows.Input
     /// </summary>
     internal class InputProviderSite : IDisposable
     {
-        /// <SecurityNote>
-        ///     Critical: This code creates critical data in the form of InputManager and InputProvider
-        /// </SecurityNote>
-        [SecurityCritical]
         internal InputProviderSite(InputManager inputManager, IInputProvider inputProvider)
         {
             _inputManager = new SecurityCriticalDataClass<InputManager>(inputManager);
@@ -34,16 +29,10 @@ namespace System.Windows.Input
         /// <summary>
         ///     Returns the input manager that this site is attached to.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: We do not want to expose the Input manager in the SEE
-        ///     TreatAsSafe: This code has a demand in it
-        /// </SecurityNote>
         public InputManager InputManager
         {
-            [SecurityCritical,SecurityTreatAsSafe]
             get
             {
-                SecurityHelper.DemandUnrestrictedUIPermission();
                 return CriticalInputManager;
             }
         }
@@ -51,12 +40,8 @@ namespace System.Windows.Input
         /// <summary>
         ///     Returns the input manager that this site is attached to.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: We do not want to expose the Input manager in the SEE
-        /// </SecurityNote>
         internal InputManager CriticalInputManager
         {
-            [SecurityCritical]
             get
             {
                 return _inputManager.Value;
@@ -66,11 +51,6 @@ namespace System.Windows.Input
         /// <summary>
         ///     Unregisters this input provider.
         /// </summary>
-        /// <SecurityNote>
-        ///     Critical: This code accesses critical data (InputManager and InputProvider).
-        ///     TreatAsSafe: The critical data is not exposed outside this call
-        /// </SecurityNote>
-        [SecurityCritical,SecurityTreatAsSafe]
         public void Dispose()
         {
             GC.SuppressFinalize(this);
@@ -109,12 +89,6 @@ namespace System.Windows.Input
         ///  Do we really need this?  Make the "providers" call InputManager.ProcessInput themselves.
         ///  we currently need to map back to providers for other reasons.
         /// </remarks>
-        /// <SecurityNote>
-        ///     Critical:This code is critical and can be used in event spoofing. It also accesses
-        ///     InputManager and calls into ProcessInput which is critical.
-        /// </SecurityNote>
-        [SecurityCritical ]
-        [UIPermissionAttribute(SecurityAction.LinkDemand,Unrestricted = true)]
         public bool ReportInput(InputReport inputReport)
         {
             if(IsDisposed)
@@ -136,15 +110,7 @@ namespace System.Windows.Input
         }
 
         private bool _isDisposed;
-        /// <SecurityNote>
-        ///     Critical: This object should not be exposed in the SEE as it can be
-        ///     used for input spoofing
-        /// </SecurityNote>
         private SecurityCriticalDataClass<InputManager> _inputManager;
-        /// <SecurityNote>
-        ///     Critical: This object should not be exposed in the SEE as it can be
-        ///     used for input spoofing
-        /// </SecurityNote>
         private SecurityCriticalDataClass<IInputProvider> _inputProvider;
     }
 }

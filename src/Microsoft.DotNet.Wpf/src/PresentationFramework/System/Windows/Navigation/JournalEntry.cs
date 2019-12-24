@@ -19,7 +19,6 @@ using System.IO.Packaging;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Permissions;
 using System.Security ;
 using System.Windows.Markup;
 
@@ -124,12 +123,6 @@ namespace System.Windows.Navigation
         /// <summary>
         /// ISerializable implementation
         /// </summary>
-        /// <SecurityNote>
-        /// Critical: does object serialization
-        /// Public OK: has a LinkDemand
-        /// </SecurityNote>
-        [SecurityCritical]
-        [SecurityPermissionAttribute(SecurityAction.LinkDemand, SerializationFormatter = true)]
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
